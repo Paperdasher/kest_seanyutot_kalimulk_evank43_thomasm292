@@ -1,9 +1,9 @@
-##<b> TUMMI EATS</b>
+## <b> TUMMI EATS </b>
 
-###TARGET SHIP DATE: 2026-05-??
+### TARGET SHIP DATE: 2026-06-01
 
 ### Overview:
-
+This app allows users to browse through a map containing restaurants and pick those they wish to try. They may review restaurants they've went and save it as part of their profile.
 
 
 ### Roster + Roles:
