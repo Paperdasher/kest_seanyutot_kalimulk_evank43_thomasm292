@@ -1,4 +1,4 @@
-# <Project Name> by kest
+# tummi by kest
 
 ## Roster/Roles:
 - Sean Takahashi (PM): 
@@ -10,7 +10,7 @@
 <Description>
 
 ## Live Site:
-Our program is hosted live [here](https://<domain>)
+Our program is hosted live [here](https://tummi.me)
 
 ### FEATURE SPOTLIGHT
 * <spotlight #1>
