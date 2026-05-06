@@ -15,7 +15,17 @@ evanK -- 2026-5-5 12:47
 DOMAIN SETUP
   - Got SSL certificate for domain
 
+seanT -- 2026-05-05 11:45
+DOMAIN SETUP
+  - Domain SSL certified
+
 evanK -- 2026-5-6 11:23
 DESIGN DOCUMENT
   - Updated design doc
   - Fleshed out overview of website
+
+seanT -- 2026-05-06 11:10
+DESIGN DOC
+  - Added components
+  - Barebones Flask app
+  - Description in main readme
