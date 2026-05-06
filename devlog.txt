@@ -6,3 +6,16 @@ Sean Takahashi (PM), Kalimiul Kaif, Evan Khosh, Thomas Mackey
 * Each entry should begin with the following format: firstL -- TIMESTAMP ( e.g.: topherM -- 1999-12-31 23:59 )
 * Most recent entry at the bottom, separated from previous with a newline
 
+evanK -- 2026-5-1 12:46
+VM SETUP
+  - Rebuild Digital Ocean droplet
+  - Set up VM
+
+evanK -- 2026-5-5 12:47
+DOMAIN SETUP
+  - Got SSL certificate for domain
+
+evanK -- 2026-5-6 11:23
+DESIGN DOCUMENT
+  - Updated design doc
+  - Fleshed out overview of website
