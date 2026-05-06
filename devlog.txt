@@ -29,3 +29,9 @@ DESIGN DOC
   - Added components
   - Barebones Flask app
   - Description in main readme
+
+evanK -- 2026-5-6 11:19
+DESIGN DOCUMENT
+  - Updated design doc
+  - Fleshed out overview of website
+  - Established preliminary database organization
