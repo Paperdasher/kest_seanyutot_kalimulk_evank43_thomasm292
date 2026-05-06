@@ -15,7 +15,8 @@ evanK -- 2026-5-5 12:47
 DOMAIN SETUP
   - Got SSL certificate for domain
 
-evanK -- 2026-5-6 11:23
+evanK -- 2026-5-6 11:19
 DESIGN DOCUMENT
   - Updated design doc
   - Fleshed out overview of website
+  - Established preliminary database organization
