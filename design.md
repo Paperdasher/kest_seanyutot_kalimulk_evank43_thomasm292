@@ -13,7 +13,17 @@ tummi will be a beli-clone that specifically caters towards Stuy students. On th
 
 
 ### Database Organization:
+restaurants
+- location
+- ratings
+- reviews
+- open
 
+users
+- username
+- password
+- reviews {name : [rating, review]}
+- wanttotry
 
 
 ### Site Map:
