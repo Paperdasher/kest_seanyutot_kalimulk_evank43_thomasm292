@@ -20,8 +20,15 @@ This app allows users to browse through a map containing restaurants and pick th
 ### Site Map:
 
 
-### Dependencies:
 
+### Dependencies:
+HTML: 
+Python: Flask, PyMongo
+APIs:
 
 
 ### Components:
+- Feed: See where other users/friends have recently visited and ranked. 
+- Profile: Displays restaurants visited for the user and locations in bucket list. 
+- Review: Rate restaurant visit based on several categories and compare preference versus other visited restaurants. 
+- Discover: Find the most fit restaurants taylored to the user based on similar likes from previously visited restaurants
