@@ -1,4 +1,4 @@
-## <b> TUMMI EATS </b>
+## <b> TUMMI </b>
 
 ### TARGET SHIP DATE: 2026-06-01
 
