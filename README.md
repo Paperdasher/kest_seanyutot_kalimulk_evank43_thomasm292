@@ -3,7 +3,7 @@
 ## Roster/Roles:
 - Sean Takahashi (PM): 
 - Kalimul Kaif: 
-- Evan Khosh: 
+- Evan Khosh: MongoDB
 - Thomas Mackey:
 
 ## Description:
