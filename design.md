@@ -106,13 +106,13 @@ Dashboard
 
 ## Key User Stories
 ### eg0
-As a __________, I want to __________ so that...
+As a Stuy kid looking for a quick lunch between periods, I want to view a feed of my friends' recent ratings in the area so that I can quickly find a reliable, student-approved, and budget-friendly spot without wasting my break time.
 
 ### eg1
-As a __________, I want to __________ so that...
+As a NYC college student who enjoys exploring diverse cuisines, I want to create and manage a bucket list of restaurants I want to visit and enjoy.
 
 ### eg2
-As a __________, I want to __________ so that...
+As a foodie enthusiast, I want to rank my restaurant visits and compare them against my previous favorites so that I can build a leaderboard of the best spots I've been to.
 
 
 
