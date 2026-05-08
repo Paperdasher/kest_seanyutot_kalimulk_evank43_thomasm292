@@ -35,14 +35,13 @@ Who will use this system?
 
 ## Core Features (Required for Final Submission)
 Features that **must** be completed:
-1. 
-1. 
-1. 
+1. Map containing all the restaurants in the area around stuy
+2. Review function where users can add reviews to restaurants
+3. Users can create list of restaurants of what they want to try
 
 ## Stretch Features (Only if MVP is Complete)
-1. 
-1. 
-1. 
+1. Users can add restaurants or food carts not listed
+2. Users can view other users' profiles and see their reviews as well as the list of what they want to try
 
 ## Explicit Non-Goals
 
