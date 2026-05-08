@@ -22,7 +22,7 @@ tummi will be a beli-clone that specifically caters towards Stuy students. On th
 
 Who will use this system?
 
-- Food Reviewers: Primarily to reviews and add new restaurants
+- Food Reviewers: Primarily to review restaurants and add new restaurants
 - Regular Diners: Primarily to find good restaurants to eat at
 
 
@@ -56,11 +56,11 @@ Features intentionally excluded:
 
 | Layer | Selected Tool |
 |---|---|
-| Backend Framework | Flask / Node.js (choose one) |
+| Backend Framework | Flask |
 | Frontend Framework | none / bootstrap / foundation / tailwind / other? (seek clearance) |
-| Database | SQLite / MongoDB |
-| Authentication | Flask sessions unless you have good reason/need to deviate |
-| ORM / DB Library | optionally SQLAlchemy; initiate clearance protocol if interested |
+| Database | MongoDB |
+| Authentication | Flask sessions |
+| ORM / DB Library | PyMongo |
 
 ## Why This Stack Was Chosen
 {your summary/recap of team discussions here}
