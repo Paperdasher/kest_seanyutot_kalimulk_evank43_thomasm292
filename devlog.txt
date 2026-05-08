@@ -30,8 +30,15 @@ DESIGN DOC
   - Barebones Flask app
   - Description in main readme
 
-evanK -- 2026-5-6 11:19
+evanK -- 2026-5-7 11:19
 DESIGN DOCUMENT
   - Updated design doc
   - Fleshed out overview of website
   - Established preliminary database organization
+
+evanK -- 2026-5-8 11:44
+DESIGN DOCUMENT
+  - Mitigated DirtyFrag on droplet
+  - Added key user descriptions
+  - Decided on tech stack
+  - Wrote reasoning behind tech stack decisions
