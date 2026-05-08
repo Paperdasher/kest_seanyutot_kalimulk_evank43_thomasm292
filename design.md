@@ -20,8 +20,6 @@ Many students around stuy don't know where to go when going out for lunch or jus
 
 ## Target Users
 
-Who will use this system?
-
 - Food Reviewers: Primarily to review restaurants and add new restaurants
 - Regular Diners: Primarily to find good restaurants to eat at
 
@@ -59,10 +57,10 @@ Features intentionally excluded:
 | Frontend Framework | none / bootstrap / foundation / tailwind / other? (seek clearance) |
 | Database | MongoDB |
 | Authentication | Flask sessions |
-| ORM / DB Library | PyMongo |
 
 ## Why This Stack Was Chosen
-{your summary/recap of team discussions here}
+
+We will be using Flask as our Backend Framework because it is what all members of the team are most experienced with and it will fulfill the purpose we need it to for this project. we will be using <FEF NAME> as our Frontend Framework because <REASON>. We will be usign MongoDB as out Database because a document-based database is more compatable for storing restaraunt  and review information which needs to be flexible and all bundled together as one document per restaurant. Evan also already worked on setting up MongoDB last project, so recreating the setup will take minimal time. We will be using Flask sessions as our Authentication because we do not have any strong requirements that would make it unviable.
 
 ---
 
