@@ -22,8 +22,8 @@ tummi will be a beli-clone that specifically caters towards Stuy students. On th
 
 Who will use this system?
 
-- Stuyvesant students/faculty
-- 
+- Food Reviewers: Primarily to reviews and add new restaurants
+- Regular Diners: Primarily to find good restaurants to eat at
 
 
 ## Why This Project Matters
