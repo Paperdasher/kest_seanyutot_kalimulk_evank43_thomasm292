@@ -6,10 +6,10 @@
 
 | Name | Email | Primary Role | Secondary Role |
 |---|---|---|---|
-|Sean Takahashi(PM)|seanyutot@nycstudents.net| | |
-|Kalimul Kaif|kalimulk@nycstudents.net| | |
-|Evan Khosh|evank43@nycstudents.net|MongoDB| |
-|Thomas Mackey|thomasm292@nycstudents.net| | |
+|Sean Takahashi(PM)|seanyutot@nycstudents.net| Flask | Review + Profile|
+|Kalimul Kaif|kalimulk@nycstudents.net| Restaurant map| HTML|
+|Evan Khosh|evank43@nycstudents.net|MongoDB| Maintenance of VM/publicly facing site|
+|Thomas Mackey|thomasm292@nycstudents.net| Gather data of all nearby food locations| Populate DB with reviews|
 
 ### Overview:
 tummi will be a beli-clone that specifically caters towards Stuy students. On the app, users will be able to explore a map of restaurants/food options near Stuy and see other users' reviews of them. Users will also be able to add restaurants to the map or remove them to reflect new restaraurnt openings/closings. By registering an account, users will be able to leave ratings and reviews of restaurants and also create lists of places they want to try. On their profile, users will be able to see all the restaraunts they've reviewed and the places they want to try in both map and list forms.
@@ -25,7 +25,7 @@ Many students around stuy don't know where to go when going out for lunch or jus
 
 
 ## Why This Project Matters
-Tummi will be able to give students who love food access to many resturants, delis, or shops that they might've not known about before, allowing these students to try new things.This project is for users who love eating and tired of going to the same place for lunch over and over again. 
+Tummi will be able to give students who love food access to many resturants, delis, or shops that they might've not known about before, allowing these students to try new things. This project is for users who love eating and tired of going to the same place for lunch over and over again. 
 
 ---
 
@@ -40,6 +40,7 @@ Features that **must** be completed:
 ## Stretch Features (Only if MVP is Complete)
 1. Users can add restaurants or food carts not listed
 2. Users can view other users' profiles and see their reviews as well as the list of what they want to try
+3. Ranking of most reviewed/visited
 
 ## Explicit Non-Goals
 
@@ -54,7 +55,7 @@ Features intentionally excluded:
 | Layer | Selected Tool |
 |---|---|
 | Backend Framework | Flask |
-| Frontend Framework | none / bootstrap / foundation / tailwind / other? (seek clearance) |
+| Frontend Framework | none / bootstrap / foundation / tailwind |
 | Database | MongoDB |
 | Authentication | Flask sessions |
 
@@ -70,10 +71,10 @@ Each member must own meaningful deliverables.
 
 | Team Member | Primary Ownership | Secondary Ownership | Specific Deliverables |
 |---|---|---|---|
-| | | | |
-| | | | |
-| | | | |
-| | | | |
+|Sean Takahashi(PM)| Flask | Review + Profile| Ability to rate restaurant and view profile with reviewed restaurants|
+|Kalimul Kaif| Restaurant map| HTML| Functioning map showing all added restaurants; pages with explanation|
+|Evan Khosh|MongoDB| Maintenance of VM/publicly facing site| Properly loading live site with all inputted data|
+|Thomas Mackey| Gather data of all nearby food locations| Populate DB with reviews| Abundant amount of restaurants and some personal reviews of different restaurants|
 
 ---
 
@@ -149,6 +150,7 @@ restaurants
 - ratings
 - reviews
 - open
+- service speed
 
 users
 - username
