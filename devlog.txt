@@ -42,3 +42,8 @@ DESIGN DOCUMENT
   - Added key user descriptions
   - Decided on tech stack
   - Wrote reasoning behind tech stack decisions
+
+seanT -- 2026-05-09 21:09
+DESIGN DOC
+  - Updated deliverables of team members
+  - Updated roles
