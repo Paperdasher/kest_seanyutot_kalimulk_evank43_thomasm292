@@ -44,10 +44,9 @@ Features that **must** be completed:
 4. Users can delete restaurants/food carts no longer open(possibly multiple user verification system?)
 
 ## Explicit Non-Goals
-
 Features intentionally excluded:
-- 
-- 
+- eg0
+- eg1
 
 ---
 
@@ -103,7 +102,7 @@ As a NYC college student who enjoys exploring diverse cuisines, I want to create
 As a foodie enthusiast, I want to rank my restaurant visits and compare them against my previous favorites so that I can build a leaderboard of the best spots I've been to.
 
 # Database Design
-{Insert your table/document organizational structure here}
+![Database Design](desing/database_design.png)
 
 # Testing Plan
 Reviews: 
