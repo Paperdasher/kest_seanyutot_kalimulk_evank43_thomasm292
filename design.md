@@ -55,13 +55,13 @@ Features intentionally excluded:
 | Layer | Selected Tool |
 |---|---|
 | Backend Framework | Flask |
-| Frontend Framework | none / bootstrap / foundation / tailwind |
+| Frontend Framework | Tailwind CSS |
 | Database | MongoDB |
-| Authentication | Flask sessions |
+| Authentication | Flask Sessions |
 
 ## Why This Stack Was Chosen
 
-We will be using Flask as our Backend Framework because it is what all members of the team are most experienced with and it will fulfill the purpose we need it to for this project. We will be using [FEF NAME] as our Frontend Framework because [REASON]. We will be using MongoDB as out Database because a document-based database is more compatable for storing restaraunt  and review information which needs to be flexible and all bundled together as one document per restaurant. Evan also already worked on setting up MongoDB last project, so recreating the setup will take minimal time. We will be using Flask sessions as our Authentication because we do not have any strong requirements that would make it unviable.
+We will be using Flask as our Backend Framework because it is what all members of the team are most experienced with and it will fulfill the purpose we need it to for this project. We will be using Tailwind CSS as our Frontend Framework because of team experience and aesthetic preference. We will be using MongoDB as out Database because a document-based database is more compatable for storing restaraunt  and review information which needs to be flexible and all bundled together as one document per restaurant. Evan also already worked on setting up MongoDB last project, so recreating the setup will take minimal time. We will be using Flask sessions as our Authentication because we do not have any strong requirements that would make it unviable.
 
 ---
 
@@ -102,7 +102,6 @@ As a NYC college student who enjoys exploring diverse cuisines, I want to create
 As a foodie enthusiast, I want to rank my restaurant visits and compare them against my previous favorites so that I can build a leaderboard of the best spots I've been to.
 
 # Database Design
-
 {Insert your table/document organizational structure here}
 
 # Testing Plan
@@ -115,30 +114,10 @@ As a foodie enthusiast, I want to rank my restaurant visits and compare them aga
 ## Internal Deadlines:
 {List milestones your team has identified, in the order they must be completed. Set a target completion date for each.}
 
-
 # Completion Criteria (_a.k.a._ "Definition of 'Done'")
 Project is considered complete when all of the following are true:
-1.
-1.
-1.
+1. MVP features are implemented (auth, discover, restaurant pages with reviews, profile with bucket list, map view)
+2. Frontend, backend and MongoDB are fully integrated
+3. Internet-facing app is deployed and stable with no critical bugs
 
 ---
-
-### Database Organization:
-restaurants
-- location
-- ratings
-- reviews
-- open
-- service speed
-
-users
-- username
-- password
-- reviews {name : [rating, review]}
-- wanttotry
-
-### Dependencies:
-HTML: 
-Python: Flask, PyMongo
-APIs:
