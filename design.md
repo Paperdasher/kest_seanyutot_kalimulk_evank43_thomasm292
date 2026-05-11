@@ -85,11 +85,11 @@ Each member must own meaningful deliverables.
 - Review: Rate restaurant visit based on several categories and compare preference versus other visited restaurants. 
 - Discover: Find the most fit restaurants taylored to the user based on similar likes from previously visited restaurants
 
-![Component Map](/design/component_map.png)
+![Component Map](design/component_map.png)
 
 # Site Map
 
-![Site Map](/design/site_map.png)
+![Site Map](design/site_map.png)
 
 ## Key User Stories
 ### eg0
