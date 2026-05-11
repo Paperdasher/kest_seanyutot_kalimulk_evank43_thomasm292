@@ -78,29 +78,18 @@ Each member must own meaningful deliverables.
 
 ---
 
-# Component map
+# Component Map
 
 - Feed: See where other users/friends have recently visited and ranked. 
 - Profile: Displays restaurants visited for the user and locations in bucket list. 
 - Review: Rate restaurant visit based on several categories and compare preference versus other visited restaurants. 
 - Discover: Find the most fit restaurants taylored to the user based on similar likes from previously visited restaurants
 
-{Insert your mermaid(or equivalent)-generated diagram here}
+![Component Map](/design/component_map.png)
 
-# Site map
+# Site Map
 
-{Insert your mermaid(or equivalent)-generated diagram here}
-eg...
-```
-Landing Page
-   ↓
-Login / Register
-   ↓
-Dashboard
-   ├── Feature A
-   ├── Feature B
-   └── Profile
-```
+![Site Map](/design/site_map.png)
 
 ## Key User Stories
 ### eg0
@@ -112,12 +101,9 @@ As a NYC college student who enjoys exploring diverse cuisines, I want to create
 ### eg2
 As a foodie enthusiast, I want to rank my restaurant visits and compare them against my previous favorites so that I can build a leaderboard of the best spots I've been to.
 
-
-
 # Database Design
 
 {Insert your table/document organizational structure here}
-
 
 # Testing Plan
 {Delineate here your plan for testing each component}
@@ -136,12 +122,6 @@ Project is considered complete when all of the following are true:
 1.
 1.
 
-# Open Questions
-{Delineate anything undecided here}
-
-# Appendix
-{Any relevant info that is useful but would have interrupted narrative flow above, or cluttered the information portrayed}
-
 ---
 
 ### Database Organization:
@@ -157,8 +137,6 @@ users
 - password
 - reviews {name : [rating, review]}
 - wanttotry
-
-
 
 ### Dependencies:
 HTML: 
