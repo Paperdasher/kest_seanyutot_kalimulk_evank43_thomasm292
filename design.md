@@ -41,12 +41,12 @@ Features that **must** be completed:
 1. Users can add restaurants or food carts not listed
 2. Users can view other users' profiles and see their reviews as well as the list of what they want to try
 3. Ranking of most reviewed/visited
+4. Users can delete restaurants/food carts no longer open(possibly multiple user verification system?)
 
 ## Explicit Non-Goals
-
 Features intentionally excluded:
-- 
-- 
+- eg0
+- eg1
 
 ---
 
@@ -55,13 +55,13 @@ Features intentionally excluded:
 | Layer | Selected Tool |
 |---|---|
 | Backend Framework | Flask |
-| Frontend Framework | none / bootstrap / foundation / tailwind |
+| Frontend Framework | Tailwind CSS |
 | Database | MongoDB |
-| Authentication | Flask sessions |
+| Authentication | Flask Sessions |
 
 ## Why This Stack Was Chosen
 
-We will be using Flask as our Backend Framework because it is what all members of the team are most experienced with and it will fulfill the purpose we need it to for this project. We will be using [FEF NAME] as our Frontend Framework because [REASON]. We will be using MongoDB as out Database because a document-based database is more compatable for storing restaraunt  and review information which needs to be flexible and all bundled together as one document per restaurant. Evan also already worked on setting up MongoDB last project, so recreating the setup will take minimal time. We will be using Flask sessions as our Authentication because we do not have any strong requirements that would make it unviable.
+We will be using Flask as our Backend Framework because it is what all members of the team are most experienced with and it will fulfill the purpose we need it to for this project. We will be using Tailwind CSS as our Frontend Framework because of team experience and aesthetic preference. We will be using MongoDB as out Database because a document-based database is more compatable for storing restaraunt  and review information which needs to be flexible and all bundled together as one document per restaurant. Evan also already worked on setting up MongoDB last project, so recreating the setup will take minimal time. We will be using Flask sessions as our Authentication because we do not have any strong requirements that would make it unviable.
 
 ---
 
@@ -78,29 +78,18 @@ Each member must own meaningful deliverables.
 
 ---
 
-# Component map
+# Component Map
 
 - Feed: See where other users/friends have recently visited and ranked. 
 - Profile: Displays restaurants visited for the user and locations in bucket list. 
 - Review: Rate restaurant visit based on several categories and compare preference versus other visited restaurants. 
 - Discover: Find the most fit restaurants taylored to the user based on similar likes from previously visited restaurants
 
-{Insert your mermaid(or equivalent)-generated diagram here}
+![Component Map](/design/component_map.png)
 
-# Site map
+# Site Map
 
-{Insert your mermaid(or equivalent)-generated diagram here}
-eg...
-```
-Landing Page
-   ↓
-Login / Register
-   ↓
-Dashboard
-   ├── Feature A
-   ├── Feature B
-   └── Profile
-```
+![Site Map](/design/site_map.png)
 
 ## Key User Stories
 ### eg0
@@ -112,55 +101,89 @@ As a NYC college student who enjoys exploring diverse cuisines, I want to create
 ### eg2
 As a foodie enthusiast, I want to rank my restaurant visits and compare them against my previous favorites so that I can build a leaderboard of the best spots I've been to.
 
-
-
 # Database Design
-
-{Insert your table/document organizational structure here}
-
+![Database Design](/design/database_design.png)
 
 # Testing Plan
-{Delineate here your plan for testing each component}
+Reviews: 
+- Users can only edit own reviews, not others
+- Can create multiple reviews of same restaurant
+- Average calculation accuracy
+
+Users: 
+- Create 5+ testing user accounts
+- Verify session persisting after reload
+- Verify app not allowing nonregistered users
+- Simulatenously enact multiple actions(reviews, adding to bucket list, etc.) and confirm changes reflected from view of other users
+
+Restaurants:
+- Add 15+ restaurants
+- Verify added restaurants appear correctly+same for all users
+- Proper loading of restaurant reviews post click of marker
+- Play around with pan out/in functionality to make sure all intact
+- Ensure duplicate restaurants not added
+- No duplicacy of bucket list restaurants, restaurants visited
+
+
 
 # Timeline
-## Week 1 Goals:
-## Week 2 Goals:
-## Week 3 Goals:
-## Internal Deadlines:
-{List milestones your team has identified, in the order they must be completed. Set a target completion date for each.}
+## Week 1 Goals: Core Infrastructure
+Sean: 
+- Session authentication + login/out
+- Basic profile page
+- Base restaurant schema
 
+Kalimul:
+- Interactive map around Stuy
+- Restaurants pulled from MongoDB, displayed as markers
+- Marker displays basic info
+
+Evan:
+- MongoDB setup(user and restaurant collections)
+- VM properly loading Flask app
+- README edited for instructions intented for developers deploying app
+
+Thomas:
+- Gather nearby restaurants
+  - Include name, cuisine, address, coordinates, price range, image
+- Go to some restaurants and input reviews for testing
+
+
+## Week 2 Goals: MVP Features
+Sean:
+- Users can create, edit, delete reviews
+- Restaurant page properly displays all user reviews
+- Determine whether users can still see reviews they made for deleted restaurants, test accordingly
+- Average rating calculation
+
+Kalimul:
+- Tailwind implementation
+- Navbar
+- Restaurant cards
+- Easy visibility of map, restaurant info
+- Consistency across different window sizes
+
+Evan:
+- Saving restaurants to profile/bucket list
+- Optimize restaurant queries
+- Assist category and filtering for map/search
+
+Thomas:
+- Add more reviews and locations(~15 locations, ~10 reviews)
+- Add category tags to restaurants(cuisine, average service speed reported range, ratings, etc.)
+- Filtering restaurants by category
+
+## Week 3 Goals: Stretch features, integration, testing, recording
+- Finish components unfinished from previous weeks
+- Test whole user navigation flow(register, login, search restaurant on map, review restaurant, add restaurant, delete restaurant, etc.)
+- Simultaneous testing on public facing site
+- Other stretch features
+- Recording of demo video
 
 # Completion Criteria (_a.k.a._ "Definition of 'Done'")
 Project is considered complete when all of the following are true:
-1.
-1.
-1.
-
-# Open Questions
-{Delineate anything undecided here}
-
-# Appendix
-{Any relevant info that is useful but would have interrupted narrative flow above, or cluttered the information portrayed}
+1. MVP features are implemented (auth, discover, restaurant pages with reviews, profile with bucket list, map view)
+2. Frontend, backend and MongoDB are fully integrated
+3. Internet-facing app is deployed and stable with no critical bugs
 
 ---
-
-### Database Organization:
-restaurants
-- location
-- ratings
-- reviews
-- open
-- service speed
-
-users
-- username
-- password
-- reviews {name : [rating, review]}
-- wanttotry
-
-
-
-### Dependencies:
-HTML: 
-Python: Flask, PyMongo
-APIs:
