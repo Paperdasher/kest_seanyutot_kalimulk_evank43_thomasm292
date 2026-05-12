@@ -52,3 +52,8 @@ seanT -- 2026-05-11 1:28
 DESIGN DOC
   - Inserted weekly goals per devo
   - Testing plan added
+
+INITIAL DESIGN DOC REVIEW -- 2026-05-11
+- Small scope, could expand more including stretch features in MVP
+- Good specificity on testing plan + per-week task breakdown
+- Revise component and site maps for legibility

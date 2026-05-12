@@ -9,7 +9,7 @@
 |Sean Takahashi(PM)|seanyutot@nycstudents.net| Flask | Review + Profile|
 |Kalimul Kaif|kalimulk@nycstudents.net| Restaurant map| HTML|
 |Evan Khosh|evank43@nycstudents.net|MongoDB| Maintenance of VM/publicly facing site|
-|Thomas Mackey|thomasm292@nycstudents.net| Gather data of all nearby food locations| Populate DB with reviews|
+|Thomas Mackey|thomasm292@nycstudents.net| Gather data of all nearby food locations| Restaurant filtering|
 
 ### Overview:
 tummi will be a beli-clone that specifically caters towards Stuy students. On the app, users will be able to explore a map of restaurants/food options near Stuy and see other users' reviews of them. Users will also be able to add restaurants to the map or remove them to reflect new restaraurnt openings/closings. By registering an account, users will be able to leave ratings and reviews of restaurants and also create lists of places they want to try. On their profile, users will be able to see all the restaraunts they've reviewed and the places they want to try in both map and list forms.
@@ -36,17 +36,12 @@ Features that **must** be completed:
 1. Map containing all the restaurants in the area around stuy
 2. Review function where users can add reviews to restaurants
 3. Users can create list of restaurants of what they want to try
+4. Users can view other users' profiles and see their reviews as well as the list of what they want to try
+5. Ranking of most reviewed/visited
 
 ## Stretch Features (Only if MVP is Complete)
 1. Users can add restaurants or food carts not listed
-2. Users can view other users' profiles and see their reviews as well as the list of what they want to try
-3. Ranking of most reviewed/visited
-4. Users can delete restaurants/food carts no longer open(possibly multiple user verification system?)
-
-## Explicit Non-Goals
-Features intentionally excluded:
-- eg0
-- eg1
+2. Users can delete restaurants/food carts no longer open(possibly multiple user verification system?)
 
 ---
 
@@ -73,8 +68,8 @@ Each member must own meaningful deliverables.
 |---|---|---|---|
 |Sean Takahashi(PM)| Flask | Review + Profile| Ability to rate restaurant and view profile with reviewed restaurants|
 |Kalimul Kaif| Restaurant map| HTML| Functioning map showing all added restaurants; pages with explanation|
-|Evan Khosh|MongoDB| Maintenance of VM/publicly facing site| Properly loading live site with all inputted data|
-|Thomas Mackey| Gather data of all nearby food locations| Populate DB with reviews| Abundant amount of restaurants and some personal reviews of different restaurants|
+|Evan Khosh|MongoDB| Restaurant filtering| Properly loading live site with all inputted data, ability to filter by category|
+|Thomas Mackey| Gather data of all nearby food locations| Restaurant categorizing/filtering| Abundant amount of restaurants and ability to search/filter by keyword|
 
 ---
 
@@ -85,20 +80,20 @@ Each member must own meaningful deliverables.
 - Review: Rate restaurant visit based on several categories and compare preference versus other visited restaurants. 
 - Discover: Find the most fit restaurants taylored to the user based on similar likes from previously visited restaurants
 
-![Component Map](/design/component_map.png)
+![Component Map](design/component_map.png)
 
 # Site Map
 
-![Site Map](/design/site_map.png)
+![Site Map](design/site_map.png)
 
 ## Key User Stories
-### eg0
+### Stuy Sophomore
 As a Stuy kid looking for a quick lunch between periods, I want to view a feed of my friends' recent ratings in the area so that I can quickly find a reliable, student-approved, and budget-friendly spot without wasting my break time.
 
-### eg1
+### NYU freshman
 As a NYC college student who enjoys exploring diverse cuisines, I want to create and manage a bucket list of restaurants I want to visit and enjoy.
 
-### eg2
+### New graphic design hire moving into NYC
 As a foodie enthusiast, I want to rank my restaurant visits and compare them against my previous favorites so that I can build a leaderboard of the best spots I've been to.
 
 # Database Design
@@ -117,7 +112,7 @@ Users:
 - Simulatenously enact multiple actions(reviews, adding to bucket list, etc.) and confirm changes reflected from view of other users
 
 Restaurants:
-- Add 15+ restaurants
+- Add 100+ restaurants
 - Verify added restaurants appear correctly+same for all users
 - Proper loading of restaurant reviews post click of marker
 - Play around with pan out/in functionality to make sure all intact
