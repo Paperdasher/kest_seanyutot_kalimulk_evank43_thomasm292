@@ -12,10 +12,11 @@ app = Flask(__name__)
 app.secret_key = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*"
 
 
-@app.get('/')
-def home_get():
-    return render_template('home.html')
+@app.route('/')
+def home():
+    return render_template("home.html")
 
 if __name__ == '__main__':
     # Run the Flask app in debug mode
-    app.run(debug=True)
+    app.debug = True
+    app.run(host='0.0.0.0', port=5000)
