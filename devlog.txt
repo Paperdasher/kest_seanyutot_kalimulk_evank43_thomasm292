@@ -59,8 +59,8 @@ INITIAL DESIGN DOC REVIEW -- 2026-05-11
 - Revise component and site maps for legibility
 
 seanT -- 2026-05-12 11:40
-DESIGN DOC
+CLERICAL(DESIGN DOC, REPO)
   - Changed maps to white background and larger font
   - Roles altered for balance and clarity
   - Scope of project expanded to more restaurants
-  - PDF uploaded to repo
+  - DD PDF, team flag uploaded to repo
