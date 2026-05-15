@@ -59,8 +59,6 @@ def login():
         if not username or not password:
             return render_template('login.html', error="Missing username or password")
 
-        account = check_password(username)
-
         if data.login_acc(username, password):
             session["username"] = username
             return redirect(url_for("home"))
