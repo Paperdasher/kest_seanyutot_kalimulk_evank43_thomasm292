@@ -1,0 +1,9 @@
+body {
+    font-family: 'Outfit', sans-serif;
+    background-color: #f8f9fa;
+}
+
+error-msg{
+    color:red;
+    margin-bottom: 5%;
+}
