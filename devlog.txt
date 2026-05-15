@@ -64,3 +64,9 @@ CLERICAL(DESIGN DOC, REPO)
   - Roles altered for balance and clarity
   - Scope of project expanded to more restaurants
   - DD PDF, team flag uploaded to repo
+
+evanK -- 2026-5-15 9:14
+MONGO SETUP
+  - Setup MongoDB on VM
+  - Wrote mongoSetup python file
+  - Pulled old work for login/register pages
