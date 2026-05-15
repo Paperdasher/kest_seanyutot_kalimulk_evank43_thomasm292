@@ -1,13 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-</head>
+{% extends "base.html" %}
 
-<body>
-    <h1> Hello {{ username }}! </h1>
-</body>
+{% block title %}Dashboard - RR Fitness Genie{% endblock %}
 
-</html>
+{% block content %}
+<div style="text-align: center; padding: 4rem; color: var(--text-muted);">
+  <h2>Dashboard</h2>
+  <h3>Hi {{username}}!</h3>
+  
+  <div id="container" style="margin-top: 40px;"></div>
+  
+</div>
+{% endblock %}
