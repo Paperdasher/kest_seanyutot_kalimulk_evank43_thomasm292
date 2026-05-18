@@ -75,3 +75,8 @@ evanK -- 2026-5-15 11:45
 BASIC FLASK APP
   - Pulled home.html, register.html, and login.html from Kalimul's old project
   - Pulled Tailwind css file
+
+seanT -- 2026-05-17 21:14
+MAP 
+  - Added basic folium map
+  - Logic for Flask API sending restaurant info for JS to display as markers
