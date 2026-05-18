@@ -14,4 +14,70 @@
         </div>
     </nav>
 </body>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    body { margin: 0; font-family: sans-serif; }
+    #map { height: 100vh; width: 100%; }
+
+    /* Popup styling */
+    .popup-content { min-width: 180px; }
+    .popup-content h3 { margin: 0 0 4px; font-size: 15px; }
+    .popup-content p  { margin: 2px 0; font-size: 13px; color: #555; }
+    .popup-content a  {
+      display: inline-block; margin-top: 8px;
+      background: #e85d04; color: white;
+      padding: 4px 10px; border-radius: 4px;
+      text-decoration: none; font-size: 13px;
+    }
+    .popup-content a:hover { background: #c94f00; }
+  </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+  // Center on Stuy
+  const map = L.map("map").setView([40.7174, -74.0134], 15);
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "© OpenStreetMap contributors",
+    maxZoom: 19,
+  }).addTo(map);
+
+  // Fetch all restaurants
+  fetch("/api/restaurants")
+    .then(res => res.json())
+    .then(restaurants => {
+      restaurants.forEach(r => {
+        const { lat, lng } = r.coordinates;
+
+        // Build stars string
+        const stars = r.avg_rating
+          ? "★".repeat(Math.round(r.avg_rating)) + ` (${r.avg_rating.toFixed(1)})`
+          : "No ratings yet";
+
+        // Create marker
+        const marker = L.marker([lat, lng]).addTo(map);
+
+        // Bind popup with basic info + link to restaurant page
+        marker.bindPopup(`
+          <div class="popup-content">
+            <h3>${r.name}</h3>
+            <p>${r.cuisine} · ${r.price_range ?? ""}</p>
+            <p>${r.address}</p>
+            <p>${stars}</p>
+            <a href="/restaurant/${r._id}">See reviews →</a>
+          </div>
+        `);
+      });
+    })
+    .catch(err => console.error("Failed to load restaurants:", err));
+</script>
+
+</body>
 </html>

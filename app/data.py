@@ -1,4 +1,5 @@
 from pymongo import MongoClient
+from bson import ObjectId
 
 client = MongoClient("mongodb://localhost:27017")
 mongo = client["database"]
@@ -16,3 +17,9 @@ def create_acc(username, password):
         "_id": username,
         "password": password
     })
+
+def get_restaurants():
+    return list(mongo.restaurants.find({}, {"_id": 1, "name": 1, "rating": 1, "location": 1, "price": 1, "food_type": 1, "restaurant_type": 1, "opens": 1, "closes": 1}))
+
+def get_one_restaurant(id):
+    return mongo.restaurants.find_one({"_id": ObjectId(id)})
