@@ -1,6 +1,6 @@
 KEST DEVLOG
 Sean Takahashi (PM), Kalimiul Kaif, Evan Khosh, Thomas Mackey
-<ASSIGNMENT TITLE>
+P05: Le Fin
 ----------------------------
 
 * Each entry should begin with the following format: firstL -- TIMESTAMP ( e.g.: topherM -- 1999-12-31 23:59 )
@@ -75,3 +75,15 @@ evanK -- 2026-5-15 11:45
 BASIC FLASK APP
   - Pulled home.html, register.html, and login.html from Kalimul's old project
   - Pulled Tailwind css file
+
+seanT -- 2026-05-17 21:14
+MAP 
+  - Added basic folium map
+  - Logic for Flask API sending restaurant info for JS to display as markers
+
+evanK -- 2026-5-17 22:55
+DATABASE FUNCTIONS
+  - Added helper functions for users collection
+  - Added helper functions for restaurants collection
+  - Added helper functions for reviews collection
+  - Fixed create_user and create_restaurant functions to initialize certain fields upon creation

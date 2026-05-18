@@ -11,6 +11,7 @@ tummi is a beli-clone that specifically caters towards Stuy students. On the app
 
 ## Live Site:
 Our program is hosted live [here](https://tummi.me)
+Backup livesite is hosted [here](https://tummiz.me)
 
 ### FEATURE SPOTLIGHT
 * <spotlight #1>
