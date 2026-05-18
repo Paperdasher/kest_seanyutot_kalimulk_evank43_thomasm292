@@ -87,3 +87,8 @@ DATABASE FUNCTIONS
   - Added helper functions for restaurants collection
   - Added helper functions for reviews collection
   - Fixed create_user and create_restaurant functions to initialize certain fields upon creation
+
+evanK -- 2026-5-18 11:40
+KAGGLE DATASETS
+  - Added address field to documents in restaurant collection
+  - Found datasets of NYC restaurants on kaggle
