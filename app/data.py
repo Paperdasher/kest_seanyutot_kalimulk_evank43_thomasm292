@@ -1,4 +1,5 @@
 from pymongo import MongoClient
+from bson import ObjectId
 
 client = MongoClient("mongodb://localhost:27017")
 mongo = client["database"]

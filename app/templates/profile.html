@@ -1,11 +1,46 @@
 <!--
-  Sean Takahashi, Haowen Xiao, Owen Zeng
+  Sean Takahashi, Evan Khosh, Kalimul Kaif, Thomas Mackey
   kest
   SoftDev
   P05
   2026-06-01m
 -->
 
-{% extends "base.html" %}
-{% block title %}Profile{% endblock %}
-{% block content %}
+<head>
+    <title>Profile</title>
+    <link href="{{ url_for('static', filename='tailwind.min.css') }}" rel="stylesheet">
+</head>
+
+<div class="bg-white p-6 rounded shadow">
+
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        {% if category == 'danger' %}
+          <div class="mb-4 p-3 rounded bg-red-100 text-red-700 border border-red-300">
+            {{ message }}
+          </div>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+    <div class="bg-white p-8 rounded shadow-md w-96">
+        <h1 class="text-2xl font-bold mb-6 text-center">Profile</h1>
+        <form method="POST">
+            <div class="mb-4">
+                <label class="block text-gray-700">Username</label>
+                <input type="text" name="username" class="w-full border p-2 rounded" required>
+            </div>
+            <div class="mb-6">
+                <label class="block text-gray-700">Password</label>
+                <input type="password" name="password" class="w-full border p-2 rounded" required>
+            </div>
+            <button type="submit" class="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600">Update Profile</button>
+        </form>
+        <p class="mt-4 text-center">
+            <a href="/login" class="text-blue-500">Login</a>
+        </p>
+    </div>
+</body>
+</html>
