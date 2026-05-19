@@ -78,10 +78,27 @@ def add_restaurant(name, location, address, price, food_type, restaurant_type, s
         "restaurant_type": restaurant_type,  # e.g. "restaurant", "cafe", "bakery"
         "schedule": schedule,           # list of hours per day
         "reviews": [],
-        "rating": [0, 0],               # [sum of ratings, number of ratings]
+        # rating is a dict: {"1": count, "2": count, "3": count, "4": count, "5": count}
+        "rating": {"1": 0, "2": 0, "3": 0, "4": 0, "5": 0},
         "link": link
     })
     return restaurant_id
+
+def update_restaurant_meta(restaurant_id, food_type=None, restaurant_type=None, schedule=None):
+    """
+    Update food_type, restaurant_type, and/or schedule for a restaurant.
+    Used by the admin fill tool to patch restaurants imported from Kaggle.
+    Only fields explicitly passed (not None) are updated.
+    """
+    updates = {}
+    if food_type is not None:
+        updates["food_type"] = food_type
+    if restaurant_type is not None:
+        updates["restaurant_type"] = restaurant_type
+    if schedule is not None:
+        updates["schedule"] = schedule
+    if updates:
+        mongo.restaurants.update_one({"_id": restaurant_id}, {"$set": updates})
 
 def filter_restaurants(food_type=None, max_price=None, keyword=None):
     """
@@ -101,20 +118,39 @@ def filter_restaurants(food_type=None, max_price=None, keyword=None):
     return list(mongo.restaurants.find(query))
 
 def get_top_restaurants(n=10):
-    """Return the top N restaurants by average rating."""
+    """Return the top N restaurants by weighted average rating."""
     restaurants = get_all_restaurants()
     for r in restaurants:
-        total, count = r["rating"][0], r["rating"][1]
-        r["avg_rating"] = round(total / count, 2) if count > 0 else 0
+        r["avg_rating"] = get_avg_rating_from_doc(r)
     return sorted(restaurants, key=lambda r: r["avg_rating"], reverse=True)[:n]
 
+def get_avg_rating_from_doc(restaurant_doc):
+    """
+    Compute average rating from a restaurant document's rating dict.
+    rating = {"1": count, "2": count, ..., "5": count}
+    Returns a float rounded to 2 decimal places, or 0 if no ratings.
+    """
+    rating = restaurant_doc.get("rating", {})
+    total = sum(int(stars) * count for stars, count in rating.items())
+    count = sum(rating.values())
+    return round(total / count, 2) if count > 0 else 0
+
 def get_avg_rating(restaurant_id):
-    """Compute average rating from the (sum, count) tuple."""
+    """
+    Compute average rating by fetching from DB.
+    Returns float or None if restaurant not found.
+    """
     r = mongo.restaurants.find_one({"_id": restaurant_id}, {"rating": 1})
     if not r:
         return None
-    total, count = r["rating"][0], r["rating"][1]
-    return round(total / count, 2) if count > 0 else None
+    return get_avg_rating_from_doc(r)
+
+def get_review_count(restaurant_id):
+    """Return total number of ratings across all star levels."""
+    r = mongo.restaurants.find_one({"_id": restaurant_id}, {"rating": 1})
+    if not r:
+        return 0
+    return sum(r.get("rating", {}).values())
 
 # -----------------------------------------------------------------------
 # Review Functions
@@ -131,6 +167,7 @@ def get_reviews_for_restaurant(restaurant_id):
 def add_review(username, restaurant_id, rating, text=""):
     """
     Insert a review and update both the restaurant's and user's review lists.
+    rating must be an integer 1-5.
     """
     last = mongo.reviews.find_one(sort=[("_id", -1)])
     review_id = (last["_id"] + 1) if last else 1
@@ -143,12 +180,13 @@ def add_review(username, restaurant_id, rating, text=""):
         "text": text
     })
 
-    # Increment rating sum and count
+    # Increment the count for this star level in the rating dict
+    star_key = str(rating)
     mongo.restaurants.update_one(
         {"_id": restaurant_id},
         {
             "$push": {"reviews": review_id},
-            "$inc": {"rating.0": rating, "rating.1": 1}
+            "$inc": {f"rating.{star_key}": 1}
         }
     )
     mongo.users.update_one(
@@ -158,21 +196,32 @@ def add_review(username, restaurant_id, rating, text=""):
     return review_id
 
 def edit_review(review_id, username, new_rating, new_text=""):
-    """Edit a review — only if the requesting user owns it."""
+    """
+    Edit a review — only if the requesting user owns it.
+    Updates the restaurant's rating dict by decrementing the old star bucket
+    and incrementing the new one.
+    """
     review = mongo.reviews.find_one({"_id": review_id, "user": username})
     if not review:
         return False  # not found or not the owner
 
-    diff = new_rating - review["rating"]  # adjust sum by the difference; count unchanged
+    old_star_key = str(review["rating"])
+    new_star_key = str(new_rating)
 
     mongo.reviews.update_one(
         {"_id": review_id},
         {"$set": {"rating": new_rating, "text": new_text}}
     )
-    mongo.restaurants.update_one(
-        {"_id": review["restaurant_id"]},
-        {"$inc": {"rating.0": diff}}
-    )
+
+    # Only touch the DB if the star rating actually changed
+    if old_star_key != new_star_key:
+        mongo.restaurants.update_one(
+            {"_id": review["restaurant_id"]},
+            {"$inc": {
+                f"rating.{old_star_key}": -1,
+                f"rating.{new_star_key}": 1
+            }}
+        )
     return True
 
 def delete_review(review_id, username):
@@ -184,12 +233,14 @@ def delete_review(review_id, username):
     if not review:
         return False  # not found or not the owner
 
+    star_key = str(review["rating"])
+
     mongo.reviews.delete_one({"_id": review_id})
     mongo.restaurants.update_one(
         {"_id": review["restaurant_id"]},
         {
             "$pull": {"reviews": review_id},
-            "$inc": {"rating.0": -review["rating"], "rating.1": -1}
+            "$inc": {f"rating.{star_key}": -1}
         }
     )
     mongo.users.update_one(
@@ -197,3 +248,31 @@ def delete_review(review_id, username):
         {"$pull": {"reviews": review_id}}
     )
     return True
+
+# -----------------------------------------------------------------------
+# Admin / Fill Tool Helpers
+# -----------------------------------------------------------------------
+
+def get_unfilled_restaurants(fields=("food_type", "schedule")):
+    """
+    Return restaurants that are missing data for any of the given fields.
+    A field is considered 'missing' if it is falsy (empty string, empty list, None).
+    Used by the admin fill tool to find restaurants still needing manual entry.
+    """
+    query = {"$or": [{field: {"$in": [None, "", []]}} for field in fields]}
+    return list(mongo.restaurants.find(query))
+
+def get_fill_progress():
+    """
+    Return a summary dict for the admin fill tool:
+      total       — total restaurant count
+      filled      — restaurants with both food_type and schedule set
+      remaining   — restaurants still needing at least one field
+    """
+    total = mongo.restaurants.count_documents({})
+    remaining = len(get_unfilled_restaurants())
+    return {
+        "total": total,
+        "filled": total - remaining,
+        "remaining": remaining
+    }
