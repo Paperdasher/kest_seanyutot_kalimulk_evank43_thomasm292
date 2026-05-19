@@ -6,9 +6,6 @@ from kagglehub import KaggleDatasetAdapter
 client = MongoClient("mongodb://localhost:27017")
 mongo = client["database"]
 
-client = MongoClient("mongodb://localhost:27017")
-mongo = client["database"]
-
 mongo.drop_collection("users")
 mongo.drop_collection("restaurants")
 mongo.drop_collection("reviews")
@@ -34,7 +31,6 @@ for data in df.itertuples(index=False):
         data[6],
         data[5],
         "",
-        "restaurant",
         [],
         data[0]
     )

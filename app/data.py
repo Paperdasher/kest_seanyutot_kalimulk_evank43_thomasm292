@@ -63,7 +63,7 @@ def get_restaurant(restaurant_id):
     """Fetch a single restaurant by ID — used for restaurant detail pages."""
     return mongo.restaurants.find_one({"_id": restaurant_id})
 
-def add_restaurant(name, location, address, price, food_type, restaurant_type, schedule, link=""):
+def add_restaurant(name, location, address, price, food_type, schedule, link=""):
     """Insert a new restaurant (stretch feature: user-submitted locations)."""
     last = mongo.restaurants.find_one(sort=[("_id", -1)])
     restaurant_id = (last["_id"] + 1) if last else 1
@@ -75,7 +75,6 @@ def add_restaurant(name, location, address, price, food_type, restaurant_type, s
         "address": address,
         "price": price,                 # 1-4 scale
         "food_type": food_type,         # e.g. "Chinese", "Mexican"
-        "restaurant_type": restaurant_type,  # e.g. "restaurant", "cafe", "bakery"
         "schedule": schedule,           # list of hours per day
         "reviews": [],
         # rating is a dict: {"1": count, "2": count, "3": count, "4": count, "5": count}
@@ -84,7 +83,7 @@ def add_restaurant(name, location, address, price, food_type, restaurant_type, s
     })
     return restaurant_id
 
-def update_restaurant_meta(restaurant_id, food_type=None, restaurant_type=None, schedule=None):
+def update_restaurant_meta(restaurant_id, food_type=None, schedule=None):
     """
     Update food_type, restaurant_type, and/or schedule for a restaurant.
     Used by the admin fill tool to patch restaurants imported from Kaggle.
@@ -93,8 +92,6 @@ def update_restaurant_meta(restaurant_id, food_type=None, restaurant_type=None, 
     updates = {}
     if food_type is not None:
         updates["food_type"] = food_type
-    if restaurant_type is not None:
-        updates["restaurant_type"] = restaurant_type
     if schedule is not None:
         updates["schedule"] = schedule
     if updates:
