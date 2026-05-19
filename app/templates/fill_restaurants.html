@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tummi Admin — Fill Restaurants</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0e0d;
+      --surface: #1a1917;
+      --border: #2e2c29;
+      --accent: #f5a623;
+      --accent-dim: #7a5110;
+      --text: #e8e4dc;
+      --muted: #6b6560;
+      --green: #4caf50;
+      --red: #e05c4b;
+      --radius: 10px;
+    }
+
+    body {
+      font-family: 'Syne', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .wordmark {
+      font-size: 2.6rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: var(--accent);
+      margin-bottom: 0.25rem;
+    }
+    .subtitle {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 3rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 540px;
+    }
+
+    .progress-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-bottom: 0.6rem;
+      display: flex;
+      justify-content: space-between;
+    }
+    .progress-label span { color: var(--text); }
+
+    .bar-track {
+      height: 8px;
+      background: var(--border);
+      border-radius: 99px;
+      margin-bottom: 2rem;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 99px;
+      transition: width 0.6s ease;
+    }
+
+    .stat-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat {
+      text-align: center;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 0.5rem;
+    }
+    .stat-num {
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .stat-num.green { color: var(--green); }
+    .stat-num.orange { color: var(--accent); }
+    .stat-num.muted { color: var(--muted); }
+    .stat-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-top: 0.35rem;
+    }
+
+    .btn {
+      display: inline-block;
+      width: 100%;
+      text-align: center;
+      padding: 0.9rem 1.5rem;
+      border-radius: var(--radius);
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      border: none;
+      transition: opacity 0.15s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary { background: var(--accent); color: #0f0e0d; }
+    .btn-disabled { background: var(--border); color: var(--muted); pointer-events: none; }
+
+    .done-msg {
+      text-align: center;
+      padding: 1.5rem;
+      color: var(--green);
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .flash {
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.8rem;
+      margin-bottom: 1.5rem;
+    }
+    .flash.success { background: #1e3a1f; border: 1px solid var(--green); color: var(--green); }
+    .flash.error   { background: #3a1e1e; border: 1px solid var(--red); color: var(--red); }
+    .flash.info    { background: #1e2a3a; border: 1px solid #4a90d9; color: #4a90d9; }
+  </style>
+</head>
+<body>
+
+  <div class="wordmark">tummi</div>
+  <div class="subtitle">admin · restaurant data fill</div>
+
+  <div class="card">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, msg in messages %}
+        <div class="flash {{ category }}">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    {% set pct = (progress.filled / progress.total * 100) | int if progress.total > 0 else 0 %}
+
+    <div class="progress-label">
+      <span>Progress</span>
+      <span>{{ pct }}%</span>
+    </div>
+    <div class="bar-track">
+      <div class="bar-fill" style="width: {{ pct }}%;"></div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat">
+        <div class="stat-num muted">{{ progress.total }}</div>
+        <div class="stat-label">Total</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num green">{{ progress.filled }}</div>
+        <div class="stat-label">Filled</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num orange">{{ progress.remaining }}</div>
+        <div class="stat-label">Remaining</div>
+      </div>
+    </div>
+
+    {% if next_id %}
+      <a class="btn btn-primary" href="{{ url_for('fill_restaurant', restaurant_id=next_id) }}">
+        Resume filling →
+      </a>
+    {% else %}
+      <div class="done-msg">✓ All restaurants have been filled!</div>
+      <a class="btn btn-disabled" href="#">Nothing left to do</a>
+    {% endif %}
+
+  </div>
+
+</body>
+</html>

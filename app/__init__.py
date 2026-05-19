@@ -2,11 +2,10 @@
 # kest
 # SoftDev
 # P05
-# 2026-06-01m
+# 2026-06-01
 
-from flask import Flask, render_template, request, flash, url_for, redirect, session
+from flask import Flask, render_template, request, flash, url_for, redirect, session, jsonify
 import folium
-import jsonify
 
 import data
 
@@ -24,16 +23,17 @@ def home():
 
 @app.route("/api/restaurants")
 def get_restaurants():
-    restaurants = data.get_restaurants()
+    restaurants = data.get_all_restaurants()
     for r in restaurants:
         r["_id"] = str(r["_id"])
     return jsonify(restaurants)
 
-@app.route("/restaurant/<id>")
+@app.route("/restaurant/<int:id>")
 def restaurant_page(id):
-    restaurant = data.get_one_restaurant(id)
-    reviews = list(data.mongo.reviews.find({"restaurant_id": restaurant["_id"]}, {"_id": 0, "username": 1, "rating": 1, "comment": 1}))
-    return render_template("restaurant.html", restaurant=restaurant, reviews=reviews)
+    restaurant = data.get_restaurant(id)
+    reviews = data.get_reviews_for_restaurant(id)
+    avg = data.get_avg_rating(id)
+    return render_template("restaurant.html", restaurant=restaurant, reviews=reviews, avg_rating=avg)
 
 @app.route("/logout")
 def logout():
@@ -68,7 +68,6 @@ def login():
         return redirect(url_for("home"))
 
     if request.method == 'POST':
-        # store username and password as a variable
         username = request.form.get('username').strip().lower()
         password = request.form.get('password').strip()
 
@@ -93,7 +92,122 @@ def profile():
 
     return render_template("profile.html", username=session['username'])
 
+# -----------------------------------------------------------------------
+# Admin: Restaurant Fill Tool
+# -----------------------------------------------------------------------
+
+DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+
+@app.route("/admin/fill-restaurants")
+def fill_restaurants():
+    """
+    Landing page for the admin fill tool.
+    Shows overall progress and redirects to the first unfilled restaurant.
+    """
+    progress = data.get_fill_progress()
+    unfilled = data.get_unfilled_restaurants()
+
+    # Build the first unfilled restaurant's ID to link to
+    next_id = unfilled[0]["_id"] if unfilled else None
+
+    return render_template(
+        "fill_restaurants.html",
+        progress=progress,
+        next_id=next_id,
+        days=DAYS
+    )
+
+@app.route("/admin/fill-restaurants/<int:restaurant_id>", methods=['GET', 'POST'])
+def fill_restaurant(restaurant_id):
+    """
+    GET  — show the fill form for this restaurant.
+    POST — save food_type, restaurant_type, and schedule, then redirect to the next unfilled one.
+    """
+    restaurant = data.get_restaurant(restaurant_id)
+    if not restaurant:
+        flash("Restaurant not found.", "error")
+        return redirect(url_for("fill_restaurants"))
+
+    if request.method == 'POST':
+        action = request.form.get("action", "save_next")
+
+        food_type      = request.form.get("food_type", "").strip()
+        restaurant_type = request.form.get("restaurant_type", "").strip()
+
+        # Build schedule list: one entry per day in "HH:MM-HH:MM" format, or "" if closed
+        schedule = []
+        for day in DAYS:
+            closed = request.form.get(f"closed_{day}")
+            if closed:
+                schedule.append("")
+            else:
+                open_time  = request.form.get(f"open_{day}", "").strip()
+                close_time = request.form.get(f"close_{day}", "").strip()
+                schedule.append(f"{open_time}-{close_time}" if open_time and close_time else "")
+
+        data.update_restaurant_meta(
+            restaurant_id,
+            food_type=food_type or None,
+            restaurant_type=restaurant_type or None,
+            schedule=schedule if any(schedule) else None
+        )
+
+        if action == "save_quit":
+            flash(f"Saved {restaurant['name']}. Progress stored — you can resume any time.", "success")
+            return redirect(url_for("fill_restaurants"))
+
+        # Find the next unfilled restaurant after this one
+        unfilled = data.get_unfilled_restaurants()
+        remaining_ids = [r["_id"] for r in unfilled if r["_id"] != restaurant_id]
+
+        if remaining_ids:
+            return redirect(url_for("fill_restaurant", restaurant_id=remaining_ids[0]))
+        else:
+            flash("All restaurants filled! Great work.", "success")
+            return redirect(url_for("fill_restaurants"))
+
+    # GET — also fetch next/prev for navigation
+    unfilled = data.get_unfilled_restaurants()
+    unfilled_ids = [r["_id"] for r in unfilled]
+    progress = data.get_fill_progress()
+
+    # Determine position in unfilled queue
+    try:
+        pos = unfilled_ids.index(restaurant_id)
+        prev_id = unfilled_ids[pos - 1] if pos > 0 else None
+        next_id = unfilled_ids[pos + 1] if pos < len(unfilled_ids) - 1 else None
+    except ValueError:
+        # This restaurant is already filled — still allow editing
+        pos, prev_id, next_id = None, None, None
+
+    return render_template(
+        "fill_restaurant.html",
+        restaurant=restaurant,
+        progress=progress,
+        days=DAYS,
+        prev_id=prev_id,
+        next_id=next_id,
+        pos=pos,
+        total_unfilled=len(unfilled_ids)
+    )
+
+@app.route("/admin/fill-restaurants/skip/<int:restaurant_id>")
+def skip_restaurant(restaurant_id):
+    """Skip the current restaurant and move to the next unfilled one."""
+    unfilled = data.get_unfilled_restaurants()
+    unfilled_ids = [r["_id"] for r in unfilled]
+    try:
+        pos = unfilled_ids.index(restaurant_id)
+        next_id = unfilled_ids[pos + 1] if pos < len(unfilled_ids) - 1 else None
+    except ValueError:
+        next_id = unfilled_ids[0] if unfilled_ids else None
+
+    if next_id:
+        return redirect(url_for("fill_restaurant", restaurant_id=next_id))
+    flash("No more unfilled restaurants.", "info")
+    return redirect(url_for("fill_restaurants"))
+
+
 if __name__ == '__main__':
-    # Run the Flask app in debug mode
     app.debug = True
     app.run(host='0.0.0.0', port=5000)

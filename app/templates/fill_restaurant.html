@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tummi Admin — {{ restaurant.name }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0e0d;
+      --surface: #1a1917;
+      --surface2: #211f1c;
+      --border: #2e2c29;
+      --accent: #f5a623;
+      --accent-dim: #7a5110;
+      --text: #e8e4dc;
+      --muted: #6b6560;
+      --green: #4caf50;
+      --red: #e05c4b;
+      --radius: 10px;
+    }
+
+    body {
+      font-family: 'Syne', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    /* ── Top bar ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 820px;
+      margin: 0 auto 2rem;
+    }
+    .wordmark {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .progress-pill {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 0.35rem 0.75rem;
+      border-radius: 99px;
+    }
+    .progress-pill span { color: var(--accent); font-weight: 500; }
+
+    /* ── Layout ── */
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 1.5rem;
+      max-width: 820px;
+      margin: 0 auto;
+    }
+    @media (max-width: 700px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.75rem;
+    }
+
+    /* ── Restaurant header ── */
+    .restaurant-name {
+      font-size: 1.5rem;
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 0.25rem;
+    }
+    .restaurant-meta {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-bottom: 1.25rem;
+    }
+
+    .maps-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.6rem 1rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--text);
+      text-decoration: none;
+      margin-bottom: 1.5rem;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .maps-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .maps-btn svg { flex-shrink: 0; }
+
+    /* ── Form elements ── */
+    .section-title {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+      margin-top: 1.5rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    label {
+      display: block;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.3rem;
+    }
+
+    select, input[type="text"], input[type="time"] {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.85rem;
+      padding: 0.55rem 0.75rem;
+      outline: none;
+      transition: border-color 0.15s;
+      margin-bottom: 1rem;
+      appearance: none;
+    }
+    select:focus, input:focus { border-color: var(--accent); }
+    select option { background: var(--surface); }
+
+    /* ── Schedule table ── */
+    .schedule-grid {
+      display: grid;
+      gap: 0.5rem;
+    }
+    .day-row {
+      display: grid;
+      grid-template-columns: 90px 1fr 1fr 80px;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      transition: border-color 0.15s;
+    }
+    .day-row:has(input[type="checkbox"]:checked) {
+      opacity: 0.5;
+    }
+    .day-name {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--text);
+    }
+    .day-row input[type="time"] {
+      margin-bottom: 0;
+      padding: 0.35rem 0.5rem;
+      font-size: 0.78rem;
+    }
+    .closed-label {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .closed-label input[type="checkbox"] {
+      width: 14px;
+      height: 14px;
+      accent-color: var(--red);
+      cursor: pointer;
+      margin-bottom: 0;
+    }
+
+    /* ── Action buttons ── */
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-top: 1.75rem;
+    }
+    .btn {
+      padding: 0.8rem 1rem;
+      border-radius: var(--radius);
+      font-family: 'Syne', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.15s;
+      text-align: center;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary  { background: var(--accent); color: #0f0e0d; }
+    .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+
+    /* ── Sidebar ── */
+    .sidebar-section { margin-bottom: 1.5rem; }
+    .sidebar-section:last-child { margin-bottom: 0; }
+
+    .nav-arrows {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+    .nav-btn {
+      display: block;
+      text-align: center;
+      padding: 0.6rem 0.5rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text);
+      text-decoration: none;
+      transition: border-color 0.15s;
+    }
+    .nav-btn:hover { border-color: var(--accent); }
+    .nav-btn.disabled { opacity: 0.3; pointer-events: none; }
+
+    .skip-btn {
+      display: block;
+      width: 100%;
+      text-align: center;
+      padding: 0.6rem;
+      background: none;
+      border: 1px dashed var(--border);
+      border-radius: 6px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-decoration: none;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .skip-btn:hover { border-color: var(--muted); color: var(--text); }
+
+    .quit-btn {
+      display: block;
+      width: 100%;
+      text-align: center;
+      padding: 0.65rem;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-decoration: none;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .quit-btn:hover { border-color: var(--red); color: var(--red); }
+
+    .bar-track {
+      height: 5px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+      margin-top: 0.75rem;
+    }
+    .bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 99px;
+    }
+
+    .existing-badge {
+      display: inline-block;
+      background: var(--accent-dim);
+      color: var(--accent);
+      border-radius: 4px;
+      padding: 0.15rem 0.5rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      margin-bottom: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="wordmark" href="{{ url_for('fill_restaurants') }}">tummi</a>
+  <div class="progress-pill">
+    {% if pos is not none %}
+      <span>{{ pos + 1 }}</span> / {{ total_unfilled }} remaining
+    {% else %}
+      Already filled — editing
+    {% endif %}
+  </div>
+</div>
+
+<form method="POST" action="{{ url_for('fill_restaurant', restaurant_id=restaurant._id) }}">
+<div class="layout">
+
+  <!-- ── Main form ── -->
+  <div class="card">
+
+    {% if restaurant.food_type or (restaurant.schedule and restaurant.schedule | select | list) %}
+      <div class="existing-badge">⚠ Partially filled — editing existing data</div>
+    {% endif %}
+
+    <div class="restaurant-name">{{ restaurant.name }}</div>
+    <div class="restaurant-meta">
+      ID #{{ restaurant._id }}
+      {% if restaurant.address %} · {{ restaurant.address }}{% endif %}
+      {% if restaurant.price %} · {{ '$' * restaurant.price }}{% endif %}
+    </div>
+
+    <!-- Google Maps link -->
+    {% set maps_query = restaurant.name ~ ' ' ~ (restaurant.address or '') %}
+    {% if restaurant.link %}
+      <a class="maps-btn" href="{{ restaurant.link }}" target="_blank" rel="noopener">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Open restaurant link
+      </a>
+    {% else %}
+      <a class="maps-btn"
+         href="https://www.google.com/maps/search/{{ maps_query | urlencode }}"
+         target="_blank" rel="noopener">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Search on Google Maps
+      </a>
+    {% endif %}
+
+    <!-- ── Cuisine / Type ── -->
+    <div class="section-title">Cuisine &amp; Type</div>
+
+    <label for="food_type">Food type / cuisine</label>
+    <select name="food_type" id="food_type">
+      <option value="">— select —</option>
+      {% for cuisine in [
+        'American', 'Bakery', 'Breakfast', 'Bubble Tea', 'Burgers',
+        'Caribbean', 'Chinese', 'Coffee', 'Deli', 'Dessert',
+        'Dominican', 'Ethiopian', 'Filipino', 'Greek',
+        'Indian', 'Italian', 'Japanese', 'Jewish', 'Korean',
+        'Latin', 'Mediterranean', 'Mexican', 'Middle Eastern',
+        'Pakistani', 'Pizza', 'Ramen', 'Sandwiches', 'Seafood',
+        'Soul Food', 'Sushi', 'Thai', 'Turkish', 'Vegan',
+        'Vietnamese', 'West African', 'Other'
+      ] %}
+        <option value="{{ cuisine }}"
+          {% if restaurant.food_type == cuisine %}selected{% endif %}>
+          {{ cuisine }}
+        </option>
+      {% endfor %}
+    </select>
+
+    <label for="restaurant_type">Establishment type</label>
+    <select name="restaurant_type" id="restaurant_type">
+      <option value="">— select —</option>
+      {% for rtype in ['Restaurant', 'Cafe', 'Deli', 'Bakery', 'Food Cart', 'Food Truck', 'Bar', 'Fast Food', 'Other'] %}
+        <option value="{{ rtype | lower }}"
+          {% if restaurant.restaurant_type == rtype | lower %}selected{% endif %}>
+          {{ rtype }}
+        </option>
+      {% endfor %}
+    </select>
+
+    <!-- ── Schedule ── -->
+    <div class="section-title">Weekly Hours</div>
+    <p style="font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--muted);margin-bottom:1rem;">
+      Check "Closed" if the restaurant is closed that day. Leave times blank if unknown.
+    </p>
+
+    <div class="schedule-grid">
+      {% for day in days %}
+        {% set i = loop.index0 %}
+        {% set existing = restaurant.schedule[i] if restaurant.schedule and restaurant.schedule | length > i else '' %}
+        {% set is_closed = existing == '' and restaurant.schedule is not none and restaurant.schedule | length > i %}
+        {% if existing and '-' in existing %}
+          {% set parts = existing.split('-') %}
+          {% set open_val = parts[0] %}
+          {% set close_val = parts[1] %}
+        {% else %}
+          {% set open_val = '' %}
+          {% set close_val = '' %}
+        {% endif %}
+
+        <div class="day-row" id="row-{{ day }}">
+          <span class="day-name">{{ day[:3] }}</span>
+          <input type="time" name="open_{{ day }}" value="{{ open_val }}"
+                 id="open-{{ day }}" />
+          <input type="time" name="close_{{ day }}" value="{{ close_val }}"
+                 id="close-{{ day }}" />
+          <label class="closed-label">
+            <input type="checkbox" name="closed_{{ day }}" id="closed-{{ day }}"
+                   onchange="toggleDay('{{ day }}')"
+                   {% if is_closed %}checked{% endif %} />
+            Closed
+          </label>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="actions">
+      <button type="submit" name="action" value="save_next" class="btn btn-primary">
+        Save &amp; next →
+      </button>
+      <button type="submit" name="action" value="save_quit" class="btn btn-secondary">
+        Save &amp; quit
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ── Sidebar ── -->
+  <div>
+
+    <div class="card sidebar-section">
+      <div class="section-title" style="margin-top:0;">Overall progress</div>
+      {% set pct = (progress.filled / progress.total * 100) | int if progress.total > 0 else 0 %}
+      <div style="font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--muted);display:flex;justify-content:space-between;">
+        <span><span style="color:var(--text)">{{ progress.filled }}</span> filled</span>
+        <span><span style="color:var(--accent)">{{ progress.remaining }}</span> left</span>
+      </div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:{{ pct }}%;"></div>
+      </div>
+    </div>
+
+    <div class="card sidebar-section">
+      <div class="section-title" style="margin-top:0;">Navigate</div>
+      <div class="nav-arrows">
+        <a class="nav-btn {% if not prev_id %}disabled{% endif %}"
+           href="{% if prev_id %}{{ url_for('fill_restaurant', restaurant_id=prev_id) }}{% else %}#{% endif %}">
+          ← Prev
+        </a>
+        <a class="nav-btn {% if not next_id %}disabled{% endif %}"
+           href="{% if next_id %}{{ url_for('fill_restaurant', restaurant_id=next_id) }}{% else %}#{% endif %}">
+          Next →
+        </a>
+      </div>
+      <a class="skip-btn"
+         href="{{ url_for('skip_restaurant', restaurant_id=restaurant._id) }}">
+        Skip (don't save)
+      </a>
+    </div>
+
+    <div class="card">
+      <div class="section-title" style="margin-top:0;">Session</div>
+      <a class="quit-btn" href="{{ url_for('fill_restaurants') }}">
+        ✕ Quit without saving
+      </a>
+      <p style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--muted);margin-top:0.75rem;line-height:1.5;">
+        Progress is saved per restaurant the moment you click "Save". You can quit and resume any time from the admin dashboard.
+      </p>
+    </div>
+
+  </div>
+
+</div>
+</form>
+
+<script>
+  function toggleDay(day) {
+    const cb    = document.getElementById('closed-' + day);
+    const open  = document.getElementById('open-'  + day);
+    const close = document.getElementById('close-' + day);
+    open.disabled  = cb.checked;
+    close.disabled = cb.checked;
+  }
+
+  // Apply initial state on load
+  {% for day in days %}
+  toggleDay('{{ day }}');
+  {% endfor %}
+</script>
+</body>
+</html>
