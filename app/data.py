@@ -63,7 +63,7 @@ def get_restaurant(restaurant_id):
     """Fetch a single restaurant by ID — used for restaurant detail pages."""
     return mongo.restaurants.find_one({"_id": restaurant_id})
 
-def add_restaurant(name, location, address, price, food_type, restaurant_type, schedule):
+def add_restaurant(name, location, address, price, food_type, restaurant_type, schedule, link=""):
     """Insert a new restaurant (stretch feature: user-submitted locations)."""
     last = mongo.restaurants.find_one(sort=[("_id", -1)])
     restaurant_id = (last["_id"] + 1) if last else 1
@@ -72,13 +72,14 @@ def add_restaurant(name, location, address, price, food_type, restaurant_type, s
         "_id": restaurant_id,
         "name": name,
         "location": location,           # (lat, lng) tuple/list
-	"address": address,
+        "address": address,
         "price": price,                 # 1-4 scale
         "food_type": food_type,         # e.g. "Chinese", "Mexican"
         "restaurant_type": restaurant_type,  # e.g. "restaurant", "cafe", "bakery"
         "schedule": schedule,           # list of hours per day
         "reviews": [],
-        "rating": [0, 0]               # [sum of ratings, number of ratings]
+        "rating": [0, 0],               # [sum of ratings, number of ratings]
+        "link": link
     })
     return restaurant_id
 
