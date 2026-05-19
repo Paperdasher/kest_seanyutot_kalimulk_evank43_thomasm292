@@ -15,37 +15,37 @@ mongo.create_collection("restaurants")
 mongo.create_collection("reviews")
 
 # Set the path to the file you'd like to load
-file_path = ""
+file_path = "google_maps_restaurants(cleaned).csv"
 
 # Load the latest version
-df = kagglehub.load_dataset(
+df = kagglehub.dataset_load(
   KaggleDatasetAdapter.PANDAS,
   "beridzeg45/nyc-restaurants",
   file_path,
 )
 
-for data in df.itertuples(index=False):
+for restaurant_data in df.itertuples(index=False):
+    bad_field = False
+    for field in restaurant_data:
+        if field is None or field == "{}": bad_field = True
+    if bad_field: continue
+
     restaurant = data.add_restaurant(
-        data[1],
-        [data[7], data[8]],
-        data[6],
-        data[5],
+        restaurant_data[1],
+        [restaurant_data[7], restaurant_data[8]],
+        restaurant_data[6],
+        restaurant_data[5],
         "",
         [],
-        data[0]
-    )
-
-    mongo.restaurants.update_one(
-        {"_id": restaurant_id},
-        {"link": data[0]},
+        restaurant_data[0]
     )
 
     ratings = {}
-    ratings["5"] = data[4]["Rating 5 "]
-    ratings["4"] = data[4]["Rating 4 "]
-    ratings["3"] = data[4]["Rating 3 "]
-    ratings["2"] = data[4]["Rating 2 "]
-    ratings["1"] = data[4]["Rating 1 "]
+    ratings_string = restaurant_data[4][1:-1]
+    ratings_list = ratings_string.split(", ")
+    for rating in ratings_list:
+        ratings[rating[7]] = float(rating.split(": ")[1])
+
     data.add_review(
         "",
         restaurant,
