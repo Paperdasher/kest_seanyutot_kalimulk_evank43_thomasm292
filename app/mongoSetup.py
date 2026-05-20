@@ -4,7 +4,7 @@ import kagglehub
 from kagglehub import KaggleDatasetAdapter
 
 client = MongoClient("mongodb://localhost:27017")
-mongo = client["database"]
+mongo = client["tummi"]
 
 mongo.drop_collection("users")
 mongo.drop_collection("restaurants")
@@ -13,6 +13,10 @@ mongo.drop_collection("reviews")
 mongo.create_collection("users")
 mongo.create_collection("restaurants")
 mongo.create_collection("reviews")
+
+mongo.restaurants.create_index("food_type")
+mongo.restaurants.create_index("name")
+mongo.reviews.create_index("user")
 
 # Set the path to the file you'd like to load
 file_path = "google_maps_restaurants(cleaned).csv"
