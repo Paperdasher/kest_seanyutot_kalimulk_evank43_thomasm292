@@ -54,10 +54,10 @@
     .then(res => res.json())
     .then(restaurants => {
       restaurants.forEach(r => {
-        const { lat, lng } = r.coordinates;
+        const { lat, lng } = r.location;
 
         // Build stars string
-        const stars = r.avg_rating
+        const stars = fetch("/api/rating/"+r.id)
           ? "★".repeat(Math.round(r.avg_rating)) + ` (${r.avg_rating.toFixed(1)})`
           : "No ratings yet";
 

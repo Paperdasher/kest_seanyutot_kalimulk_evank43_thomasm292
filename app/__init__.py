@@ -28,6 +28,10 @@ def get_restaurants():
         r["_id"] = str(r["_id"])
     return jsonify(restaurants)
 
+@app.route("/api/rating/<int:id>")
+def get_avg_rating(id):
+    return data.get_avg_rating_from_doc(id)
+
 @app.route("/restaurant/<int:id>")
 def restaurant_page(id):
     restaurant = data.get_restaurant(id)
