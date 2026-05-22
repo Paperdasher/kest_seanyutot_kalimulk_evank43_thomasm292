@@ -103,7 +103,7 @@ def profile(username=None):
     else:
         page_user = current_user
 
-    is_own_profile = page_user["id"] == current_user["id"]
+    is_own_profile = page_user["_id"] == current_user["_id"]
 
     # Reviews left by this user
     reviews_raw = list(data.get_user_reviews(page_user["_id"]))
