@@ -92,3 +92,9 @@ evanK -- 2026-5-18 11:40
 KAGGLE DATASETS
   - Added address field to documents in restaurant collection
   - Found datasets of NYC restaurants on kaggle
+
+seanT -- 2026-05-22 2:30
+PROFILE PAGE 
+  - Added bucket list add/remove logic and review display for app
+  - Profile HTML template with reviews and bucket list
+  - Profile on navbar
