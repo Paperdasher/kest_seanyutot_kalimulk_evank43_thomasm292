@@ -90,23 +90,24 @@ def login():
 @app.route("/profile")
 @app.route("/profile/<username>")
 def profile(username=None):
-    current_user = data.check_acc(session['username'])
- 
+    if 'username' not in session:
+        return redirect(url_for("login"))
+
+    current_user = data.get_user(session['username'])
+
     # Decide whose profile to show
     if username:
-        page_user = data.users.find_one({"username": username})
+        page_user = data.get_user(username)
         if not page_user:
             return "User not found", 404
-    elif current_user:
-        page_user = current_user
     else:
-        return redirect(url_for("auth.login"))
- 
-    is_own_profile = current_user and str(current_user["_id"]) == str(page_user["_id"])
- 
-    # Reviews left by this user 
+        page_user = current_user
+
+    is_own_profile = page_user["id"] == current_user["id"]
+
+    # Reviews left by this user
     reviews_raw = list(data.get_user_reviews(page_user["_id"]))
- 
+
     # Attach restaurant name to each review
     reviews = []
     for r in reviews_raw:
@@ -120,10 +121,10 @@ def profile(username=None):
             "body": r.get("body", ""),
             "created_at": r.get("created_at", ""),
         })
- 
+
     # Sort newest first
     reviews.sort(key=lambda x: x["created_at"], reverse=True)
- 
+
     # Bucket list
     bucket_ids = page_user.get("wanttotry", [])  # list of restaurant_id strings
     bucket_list = []
@@ -142,7 +143,7 @@ def profile(username=None):
                 })
         except Exception:
             continue
- 
+
     return render_template(
         "profile.html",
         page_user=page_user,
@@ -157,20 +158,20 @@ def add_to_bucket(restaurant_id):
     current_user = data.check_acc(session['username'])
     if not current_user:
         return jsonify({"error": "Not logged in"}), 401
- 
+
     # Validate restaurant exists
     try:
         restaurant = data.get_restaurant({"_id": ObjectId(restaurant_id)})
     except Exception:
         return jsonify({"error": "Invalid restaurant id"}), 400
- 
+
     if not restaurant:
         return jsonify({"error": "Restaurant not found"}), 404
- 
+
     bucket = current_user.get("wanttotry", [])
     if restaurant_id in bucket:
         return jsonify({"message": "Already in bucket list"}), 200
- 
+
     data.add_to_want_to_try(current_user["_id"], restaurant_id)
     return jsonify({"message": "Added to bucket list", "restaurant_id": restaurant_id}), 200
 
@@ -179,7 +180,7 @@ def remove_from_bucket(restaurant_id):
     current_user = data.check_acc(session['username'])
     if not current_user:
         return jsonify({"error": "Not logged in"}), 401
- 
+
     data.remove_from_want_to_try(current_user["_id"], restaurant_id)
     return jsonify({"message": "Removed from bucket list", "restaurant_id": restaurant_id}), 200
 
