@@ -15,21 +15,30 @@
     /* Default: reviews visible, bucket hidden */
     #panel-reviews { display: block; }
     #panel-bucket  { display: none;  }
- 
+
     /* When #bucket is the URL target, flip them */
     body:has(#panel-bucket:target) #panel-reviews { display: none; }
     body:has(#panel-bucket:target) #panel-bucket  { display: block; }
- 
+
     /* Tab underlines */
     body:not(:has(#panel-bucket:target)) #tab-reviews { border-bottom-color: #ea580c; color: #ea580c; }
     body:has(#panel-bucket:target)       #tab-bucket  { border-bottom-color: #ea580c; color: #ea580c; }
   </style>
 </head>
- 
+
 <body class="bg-gray-100 min-h-screen">
- 
+
+  <nav class="bg-blue-600 text-white p-4 flex justify-between">
+      <h1 class="text-xl font-bold">tummi</h1>
+      <div>
+          <a href="/" class="mr-4">Home</a>
+          <a href="/profile" class="mr-4">Profile</a>
+          <a href="/logout" class="text-red-200">Logout</a>
+      </div>
+  </nav>
+
   <div class="max-w-4xl mx-auto px-4 py-8">
- 
+
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         {% for category, message in messages %}
@@ -41,7 +50,7 @@
         {% endfor %}
       {% endif %}
     {% endwith %}
- 
+
     <!-- PROFILE HEADER -->
     <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
       <div class="flex items-start gap-4">
@@ -68,7 +77,7 @@
         </div>
       </div>
     </div>
- 
+
     <div class="flex border-b border-gray-200 mb-5">
       <a id="tab-reviews" href="#reviews"
          class="px-5 py-2.5 text-sm font-semibold border-b-2 border-transparent -mb-px transition-colors">
@@ -79,7 +88,7 @@
         Bucket List
       </a>
     </div>
- 
+
     <!-- REVIEWS PANEL -->
     <div id="panel-reviews">
       <span id="reviews" class="sr-only" tabindex="-1"></span>
@@ -87,7 +96,7 @@
         <h2 class="font-bold text-gray-800">Reviews</h2>
         <span class="text-xs text-gray-400">{{ reviews | length }} total</span>
       </div>
- 
+
       {% if reviews %}
         {% for review in reviews %}
         <div id="review-{{ review._id }}" class="bg-white border border-gray-200 rounded-xl p-4 mb-3 hover:border-gray-300 transition-colors">
@@ -108,11 +117,11 @@
               {% endfor %}
             </div>
           </div>
- 
+
           {% if review.body %}
             <p class="text-sm text-gray-600 leading-relaxed">{{ review.body }}</p>
           {% endif %}
- 
+
           <div class="flex items-center justify-between mt-3">
             {% if review.created_at %}
               <span class="text-xs text-gray-400">
@@ -121,7 +130,7 @@
             {% else %}
               <span></span>
             {% endif %}
- 
+
             {% if is_own_profile %}
             <div class="flex gap-2">
               <a href="/restaurant/{{ review.restaurant_id }}"
@@ -138,7 +147,7 @@
           </div>
         </div>
         {% endfor %}
- 
+
       {% else %}
         <div class="bg-white border border-gray-200 rounded-xl p-10 text-center">
           <svg class="w-10 h-10 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
@@ -153,7 +162,7 @@
         </div>
       {% endif %}
     </div>
- 
+
     <!-- BUCKET LIST PANEL -->
     <div id="panel-bucket">
       <span id="bucket" class="sr-only" tabindex="-1"></span>
@@ -161,7 +170,7 @@
         <h2 class="font-bold text-gray-800">Bucket List</h2>
         <span class="text-xs text-gray-400">{{ bucket_list | length }} places</span>
       </div>
- 
+
       {% if bucket_list %}
         {% for place in bucket_list %}
         <div id="bucket-{{ place._id }}" class="bg-white border border-gray-200 rounded-xl p-4 mb-3 flex items-center justify-between gap-4 hover:border-gray-300 transition-colors">
@@ -193,7 +202,7 @@
           </div>
         </div>
         {% endfor %}
- 
+
       {% else %}
         <div class="bg-white border border-gray-200 rounded-xl p-10 text-center">
           <svg class="w-10 h-10 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
@@ -208,9 +217,9 @@
         </div>
       {% endif %}
     </div>
- 
+
   </div>
- 
+
   <script>
     function deleteReview(id) {
       if (!confirm('Delete this review?')) return;
@@ -218,13 +227,13 @@
         .then(r => r.json())
         .then(d => { if (d.message) document.getElementById('review-' + id).remove(); });
     }
- 
+
     function removeFromBucket(id) {
       fetch('/bucket-list/remove/' + id, { method: 'POST' })
         .then(r => r.json())
         .then(d => { if (d.message) document.getElementById('bucket-' + id).remove(); });
     }
   </script>
- 
+
 </body>
 </html>
