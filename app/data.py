@@ -125,12 +125,12 @@ def get_avg_rating_from_doc(restaurant_doc):
     """
     Compute average rating from a restaurant document's rating dict.
     rating = {"1": count, "2": count, ..., "5": count}
-    Returns a float rounded to 2 decimal places, or 0 if no ratings.
+    Returns a float rounded to 1 decimal places, or -1 if no ratings.
     """
     rating = restaurant_doc.get("rating", {})
     total = sum(int(stars) * count for stars, count in rating.items())
     count = sum(rating.values())
-    return round(total / count, 2) if count > 0 else 0
+    return round(total / count, 1) if count > 0 else 0
 
 def get_avg_rating(restaurant_id):
     """
