@@ -36,13 +36,9 @@ for restaurant_data in df.itertuples(index=False):
 
     ratings = {}
     ratings_string = restaurant_data[4][1:-1]
-    print(ratings_string)
     ratings_list = ratings_string.split(", ")
-    print(ratings_list)
     for rating in ratings_list:
-        print(rating[7])
-        print(rating.split(": ")[1][:-2])
-        ratings[rating[7]] = int(rating.split(": ")[1][:-2])
+        ratings[rating[8]] = int(rating.split(": ")[1][:-2])
 
     restaurant = data.add_restaurant(
         restaurant_data[1],
