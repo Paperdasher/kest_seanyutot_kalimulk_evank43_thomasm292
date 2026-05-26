@@ -35,10 +35,14 @@ for restaurant_data in df.itertuples(index=False):
     if bad_field: continue
 
     ratings = {}
-    i = 1
-    for rating in restaurant_data[4]:
-        ratings[str(i)] = int(rating)
-        i += 1
+    ratings_string = restaurant_data[4][1:-1]
+    print(ratings_string)
+    ratings_list = ratings_string.split(", ")
+    print(ratings_list)
+    for rating in ratings_list:
+        print(rating[7])
+        print(rating.split(": ")[1][:-2])
+        ratings[rating[7]] = int(rating.split(": ")[1][:-2])
 
     restaurant = data.add_restaurant(
         restaurant_data[1],
