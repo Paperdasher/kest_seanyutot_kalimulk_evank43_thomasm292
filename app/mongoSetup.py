@@ -2,6 +2,7 @@ from pymongo import MongoClient
 import data
 import kagglehub
 from kagglehub import KaggleDatasetAdapter
+import pandas as pd
 
 client = MongoClient("mongodb://localhost:27017")
 mongo = client["tummi"]
@@ -31,7 +32,7 @@ df = kagglehub.dataset_load(
 for restaurant_data in df.itertuples(index=False):
     bad_field = False
     for field in restaurant_data:
-        if field is None or field == "{}": bad_field = True
+        if pd.isna(field) or field == "{}": bad_field = True
     if bad_field: continue
 
     ratings = {}
