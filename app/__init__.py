@@ -27,6 +27,7 @@ def get_restaurants():
     restaurants = data.get_all_restaurants()
     for r in restaurants:
         r["_id"] = str(r["_id"])
+
     return jsonify(restaurants)
 
 @app.route("/api/rating/<int:id>")
