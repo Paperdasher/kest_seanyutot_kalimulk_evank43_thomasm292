@@ -36,7 +36,8 @@ for restaurant_data in df.itertuples(index=False):
 
     restaurant = data.add_restaurant(
         restaurant_data[1],
-        [restaurant_data[7], restaurant_data[8]],
+        restaurant_data[7],
+        restaurant_data[8],
         restaurant_data[6],
         restaurant_data[5],
         "",
