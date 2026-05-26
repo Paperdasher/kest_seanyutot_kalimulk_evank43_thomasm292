@@ -34,6 +34,12 @@ for restaurant_data in df.itertuples(index=False):
         if field is None or field == "{}": bad_field = True
     if bad_field: continue
 
+    ratings = {}
+    ratings_string = restaurant_data[4][1:-1]
+    ratings_list = ratings_string.split(", ")
+    for rating in ratings_list:
+        ratings[rating[7]] = int(rating.split(": ")[1][:-2])
+
     restaurant = data.add_restaurant(
         restaurant_data[1],
         restaurant_data[7],
@@ -42,17 +48,8 @@ for restaurant_data in df.itertuples(index=False):
         restaurant_data[5],
         "",
         [],
+        ratings,
         restaurant_data[0]
     )
 
-    ratings = {}
-    ratings_string = restaurant_data[4][1:-1]
-    ratings_list = ratings_string.split(", ")
-    for rating in ratings_list:
-        ratings[rating[7]] = float(rating.split(": ")[1])
-
-    data.add_review(
-        "",
-        restaurant,
-        rating
-    )
+    
