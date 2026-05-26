@@ -445,14 +445,22 @@ function priceLabel(p) {
 }
 
 function avgRating(r) {
-  const rating = r.rating || {};
+  const rating = r.rating;
+  if (!rating) return 0;
   let total = 0, count = 0;
-  for (const [k, v] of Object.entries(rating)) {
-    total += parseInt(k) * v;
-    count += v;
+  if (Array.isArray(rating)) {
+    // Stored as [count_1star, count_2star, ..., count_5star]
+    rating.forEach((v, i) => { total += (i + 1) * (v || 0); count += (v || 0); });
+  } else {
+    // Stored as {"1": count, "2": count, ...}
+    for (const [k, v] of Object.entries(rating)) {
+      total += parseInt(k) * (v || 0);
+      count += (v || 0);
+    }
   }
   return count > 0 ? total / count : 0;
 }
+
 
 // ─────────────────────────────────────────────
 //  Sidebar toggle
@@ -474,6 +482,7 @@ async function loadAllRestaurants() {
   try {
     const res = await fetch('/api/restaurants');
     allRestaurants = await res.json();
+    console.log(`Loaded ${allRestaurants.length} restaurants`, allRestaurants[0] || 'empty');
     // Pre-compute avg rating
     allRestaurants.forEach(r => { r._avg = avgRating(r); });
     applyFilters();
@@ -509,11 +518,8 @@ function applyFilters() {
     if (maxPrice && r.price > maxPrice) return false;
     // viewport
     if (bounds) {
-      const loc = r.location;
-      if (!loc) return false;
-      const lat = loc.lat ?? loc[0];
-      const lng = loc.lng ?? loc[1];
-      if (!bounds.contains([lat, lng])) return false;
+      if (r.lat == null || r.lng == null) return false;
+      if (!bounds.contains([r.lat, r.lng])) return false;
     }
     return true;
   });
@@ -538,13 +544,9 @@ function renderMarkers(restaurants, totalFiltered) {
   markers = {};
 
   restaurants.forEach(r => {
-    const loc = r.location;
-    if (!loc) return;
-    const lat = loc.lat ?? loc[0];
-    const lng = loc.lng ?? loc[1];
-    if (lat == null || lng == null) return;
+    if (r.lat == null || r.lng == null) return;
 
-    const marker = L.marker([lat, lng]).addTo(map);
+    const marker = L.marker([r.lat, r.lng]).addTo(map);
 
     const avg = r._avg || 0;
     marker.bindPopup(`
