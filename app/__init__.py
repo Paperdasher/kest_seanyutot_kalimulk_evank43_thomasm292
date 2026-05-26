@@ -31,7 +31,8 @@ def get_restaurants():
 
 @app.route("/api/rating/<int:id>")
 def get_avg_rating(id):
-    return data.get_avg_rating_from_doc(id)
+    avg = data.get_avg_rating(id)
+    return jsonify({"avg": avg})
 
 @app.route("/restaurant/<int:id>")
 def restaurant_page(id):
@@ -103,7 +104,7 @@ def profile(username=None):
     else:
         page_user = current_user
 
-    is_own_profile = page_user["id"] == current_user["id"]
+    is_own_profile = page_user["_id"] == current_user["_id"]
 
     # Reviews left by this user
     reviews_raw = list(data.get_user_reviews(page_user["_id"]))
@@ -158,9 +159,11 @@ def add_to_bucket(restaurant_id):
     if "username" not in session:
         return jsonify({"error": "Not logged in"}), 401
 
+    current_user = data.get_user(session["username"])
+
     # Validate restaurant exists
     try:
-        restaurant = data.get_restaurant({"_id": ObjectId(restaurant_id)})
+        restaurant = data.get_restaurant(int(restaurant_id))
     except Exception:
         return jsonify({"error": "Invalid restaurant id"}), 400
 
@@ -179,6 +182,7 @@ def remove_from_bucket(restaurant_id):
     if "username" not in session:
         return jsonify({"error": "Not logged in"}), 401
 
+    current_user = data.get_user(session["username"])
     data.remove_from_want_to_try(current_user["_id"], restaurant_id)
     return jsonify({"message": "Removed from bucket list", "restaurant_id": restaurant_id}), 200
 
