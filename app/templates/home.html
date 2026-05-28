@@ -479,10 +479,10 @@
         </select>
         <label>results</label>
         <label class="viewport-toggle" title="Only show restaurants visible on the map">
-          <input type="checkbox" id="viewport-only"> In view
+          <input type="checkbox" id="viewport-only" checked="checked"> In view
         </label>
       </div>
-      <button class="btn-apply" onclick="applyFilters()">Apply filters</button>
+      <button class="btn-apply" onclick="applyFilters()">Search</button>
     </div>
 
     <div class="results-meta" id="results-meta">Loading…</div>
@@ -753,9 +753,9 @@ map.on('popupclose', (e) => {
 });
 
 // Viewport filter on move
-map.on('moveend zoomend', () => {
-  if (document.getElementById('viewport-only').checked) applyFilters();
-});
+// map.on('moveend zoomend', () => {
+//   if (document.getElementById('viewport-only').checked) applyFilters();
+// });
 
 // Search on Enter
 document.getElementById('search-input').addEventListener('keydown', e => {
