@@ -187,6 +187,27 @@ def remove_from_bucket(restaurant_id):
     data.remove_from_want_to_try(current_user["_id"], restaurant_id)
     return jsonify({"message": "Removed from bucket list", "restaurant_id": restaurant_id}), 200
 
+@app.route("/review/add/<int:restaurant_id>", methods=["POST"])
+def add_review(restaurant_id):
+    if "username" not in session:
+        return redirect(url_for("login"))
+    rating = int(request.form.get("rating", 0))
+    body = request.form.get("body", "").strip()
+    if rating < 1 or rating > 5:
+        flash("Please select a rating.", "danger")
+        return redirect(url_for("restaurant_page", id=restaurant_id))
+    data.add_review(restaurant_id, session["username"], rating, body)
+    return redirect(url_for("restaurant_page", id=restaurant_id))
+
+@app.route("/review/delete/<review_id>", methods=["POST"])
+def delete_review(review_id):
+    if "username" not in session:
+        return jsonify({"error": "Not logged in"}), 401
+    deleted = data.delete_review(review_id, session["username"])
+    if deleted:
+        return jsonify({"message": "deleted"})
+    return jsonify({"error": "Unauthorized"}), 403
+
 # -----------------------------------------------------------------------
 # Admin: Restaurant Fill Tool
 # -----------------------------------------------------------------------
