@@ -98,3 +98,9 @@ PROFILE PAGE
   - Added bucket list add/remove logic and review display for app
   - Profile HTML template with reviews and bucket list
   - Profile on navbar
+
+seanT -- 2026-05-28 1:32
+RESTAURANT PAGE
+  - Added restaurant template
+  - Fixed navbar nonexistent in pages other than home
+  - Debugging flash message not appearing issue
