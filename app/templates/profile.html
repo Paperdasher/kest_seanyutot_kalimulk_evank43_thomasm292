@@ -17,12 +17,12 @@
     #panel-bucket  { display: none;  }
  
     /* When #bucket is the URL target, flip them */
-    body:has(#panel-bucket:target) #panel-reviews { display: none; }
-    body:has(#panel-bucket:target) #panel-bucket  { display: block; }
+    body:has(#bucket:target) #panel-reviews { display: none; }
+    body:has(#bucket:target) #panel-bucket  { display: block; }
  
     /* Tab underlines */
-    body:not(:has(#panel-bucket:target)) #tab-reviews { border-bottom-color: #ea580c; color: #ea580c; }
-    body:has(#panel-bucket:target)       #tab-bucket  { border-bottom-color: #ea580c; color: #ea580c; }
+    body:not(:has(#bucket:target)) #tab-reviews { border-bottom-color: #ea580c; color: #ea580c; }
+    body:has(#bucket:target)       #tab-bucket  { border-bottom-color: #ea580c; color: #ea580c; }
   </style>
 </head>
  
