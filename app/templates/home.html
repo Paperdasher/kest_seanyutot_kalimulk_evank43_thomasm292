@@ -468,19 +468,23 @@
           <option value="4">$$$$</option>
         </select>
       </div>
-      <div class="controls-row">
-        <label for="limit-select">Show</label>
-        <select id="limit-select">
-          <option value="10">10</option>
-          <option value="20" selected>20</option>
-          <option value="50">50</option>
-          <option value="100">100</option>
-          <option value="0">All</option>
-        </select>
-        <label>results</label>
+      <div style="display:flex; justify-content:flex-end; margin-bottom:6px;">
         <label class="viewport-toggle" title="Only show restaurants visible on the map">
           <input type="checkbox" id="viewport-only" checked="checked"> In view
         </label>
+      </div>
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <div style="display:flex; align-items:center; gap:6px;">
+          <label for="limit-select" style="font-size:12px; color:var(--muted); white-space:nowrap;">Show</label>
+          <select id="limit-select" style="width:64px; padding:6px 22px 6px 8px; border:1px solid var(--border); border-radius:6px; font-size:12px; background:var(--surface); color:var(--text); outline:none; cursor:pointer; appearance:none; background-image:url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'10\' height=\'6\'%3E%3Cpath d=\'M0 0l5 6 5-6z\' fill=\'%2364748b\'/%3E%3C/svg%3E'); background-repeat:no-repeat; background-position:right 7px center;">
+            <option value="10">10</option>
+            <option value="20" selected>20</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+            <option value="0">All</option>
+          </select>
+          <label style="font-size:12px; color:var(--muted); white-space:nowrap;">results</label>
+        </div>
         <label class="viewport-toggle" title="Only show restaurants in your bucket list">
           <input type="checkbox" id="bucket-only"> Bucket list only
         </label>
