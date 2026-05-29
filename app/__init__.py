@@ -6,7 +6,6 @@
 
 from flask import Flask, render_template, request, flash, url_for, redirect, session, jsonify
 import folium
-from bson import ObjectId
 
 import data
 
@@ -113,14 +112,14 @@ def profile(username=None):
     # Attach restaurant name to each review
     reviews = []
     for r in reviews_raw:
-        restaurant = data.get_restaurant({"_id": ObjectId(r["restaurant_id"])})
+        restaurant = data.get_restaurant(r["restaurant_id"])
         reviews.append({
             "_id": str(r["_id"]),
             "restaurant_id": r["restaurant_id"],
             "restaurant_name": restaurant["name"] if restaurant else "Unknown",
-            "restaurant_cuisine": restaurant.get("cuisine", "") if restaurant else "",
+            "restaurant_cuisine": restaurant.get("food_type", "") if restaurant else "",
             "rating": r.get("rating", 0),
-            "body": r.get("body", ""),
+            "body": r.get("text", ""),
             "created_at": r.get("created_at", ""),
         })
 
@@ -132,7 +131,7 @@ def profile(username=None):
     bucket_list = []
     for rid in bucket_ids:
         try:
-            restaurant = data.get_restaurant({"_id": ObjectId(rid)})
+            restaurant = data.get_restaurant(int(rid))
             if restaurant:
                 bucket_list.append({
                     "_id": rid,
@@ -140,7 +139,7 @@ def profile(username=None):
                     "cuisine": restaurant.get("food_type", ""),
                     "address": restaurant.get("address", ""),
                     "price": restaurant.get("price", ""),
-                    "avg_rating": restaurant.get("rating"),
+                    "avg_rating": data.get_avg_rating(int(rid)),
                     "schedule": restaurant.get("schedule", []),
                 })
         except Exception:
@@ -196,14 +195,18 @@ def add_review(restaurant_id):
     if rating < 1 or rating > 5:
         flash("Please select a rating.", "danger")
         return redirect(url_for("restaurant_page", id=restaurant_id))
-    data.add_review(restaurant_id, session["username"], rating, body)
+    data.add_review(session["username"], restaurant_id, rating, body)
     return redirect(url_for("restaurant_page", id=restaurant_id))
 
 @app.route("/review/delete/<review_id>", methods=["POST"])
 def delete_review(review_id):
     if "username" not in session:
         return jsonify({"error": "Not logged in"}), 401
-    deleted = data.delete_review(review_id, session["username"])
+    try:
+        review_id_int = int(review_id)
+    except ValueError:
+        return jsonify({"error": "Invalid review id"}), 400
+    deleted = data.delete_review(review_id_int, session["username"])
     if deleted:
         return jsonify({"message": "deleted"})
     return jsonify({"error": "Unauthorized"}), 403
@@ -264,7 +267,6 @@ def fill_restaurant(restaurant_id):
         data.update_restaurant_meta(
             restaurant_id,
             food_type=food_type or None,
-            restaurant_type=restaurant_type or None,
             schedule=schedule if any(schedule) else None
         )
 
