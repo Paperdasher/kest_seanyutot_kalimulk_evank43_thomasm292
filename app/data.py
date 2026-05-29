@@ -28,9 +28,8 @@ def get_user(username):
     return mongo.users.find_one({"_id": username})
 
 def get_user_reviews(username):
-    """Return list of review IDs for a user's profile."""
-    user = mongo.users.find_one({"_id": username}, {"reviews": 1})
-    return user.get("reviews", []) if user else []
+    """Return full review documents written by this user."""
+    return list(mongo.reviews.find({"user": username}))
 
 def get_want_to_try(username):
     """Return user's bucket list of restaurant IDs."""
