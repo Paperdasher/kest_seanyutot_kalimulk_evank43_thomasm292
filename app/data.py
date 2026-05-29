@@ -159,7 +159,7 @@ def get_review(review_id):
 
 def get_user_review_for_restaurant(review_id, username):
     """Fetch a single review by ID."""
-    return mongo.reviews.find_one({"_id": review_id, "user": username})
+    return mongo.reviews.find_one({"restaurant_id": review_id, "user": username})
 
 def get_reviews_for_restaurant(restaurant_id):
     """Fetch all reviews for a restaurant detail page."""
