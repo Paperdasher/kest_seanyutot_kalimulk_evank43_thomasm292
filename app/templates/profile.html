@@ -3,7 +3,7 @@
   kest
   SoftDev
   P05
-  2026-06-01m
+  2026-06-01
 -->
 
 <!DOCTYPE html>
@@ -12,22 +12,220 @@
   <title>Profile · tummi</title>
   <link href="{{ url_for('static', filename='tailwind.min.css') }}" rel="stylesheet">
   <style>
+    :root {
+      --blue:     #2563eb;
+      --blue-dk:  #1d4ed8;
+      --blue-lt:  #eff6ff;
+      --blue-mid: #bfdbfe;
+      --panel:    #ffffff;
+      --surface:  #f8fafc;
+      --border:   #e2e8f0;
+      --text:     #1e293b;
+      --muted:    #64748b;
+      --red:      #ef4444;
+      --green:    #16a34a;
+      --gold:     #f59e0b;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--surface);
+      color: var(--text);
+      margin: 0;
+      min-height: 100vh;
+    }
+
+    /* ── NAV (matches home page) ── */
+    nav {
+      background: var(--blue);
+      padding: 0 16px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    .nav-logo {
+      font-size: 20px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.3px;
+      text-decoration: none;
+    }
+    .nav-links a {
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+      margin-left: 20px;
+      transition: color .15s;
+    }
+    .nav-links a:hover { color: #ffffff; }
+    .nav-links a.logout { color: #fca5a5; }
+    .nav-links a.logout:hover { color: #fef2f2; }
+
+    /* ── TAB SYSTEM ── */
     /* Default: reviews visible, bucket hidden */
     #panel-reviews { display: block; }
     #panel-bucket  { display: none;  }
- 
+
     /* When #bucket is the URL target, flip them */
     body:has(#bucket:target) #panel-reviews { display: none; }
     body:has(#bucket:target) #panel-bucket  { display: block; }
- 
-    /* Tab underlines */
-    body:not(:has(#bucket:target)) #tab-reviews { border-bottom-color: #ea580c; color: #ea580c; }
-    body:has(#bucket:target)       #tab-bucket  { border-bottom-color: #ea580c; color: #ea580c; }
+
+    /* Tab underlines — match blue theme */
+    body:not(:has(#bucket:target)) #tab-reviews {
+      border-bottom-color: var(--blue);
+      color: var(--blue);
+    }
+    body:has(#bucket:target) #tab-bucket {
+      border-bottom-color: var(--blue);
+      color: var(--blue);
+    }
+
+    /* ── STAT CARDS ── */
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 16px;
+      text-align: center;
+    }
+    .stat-value { font-size: 1.25rem; font-weight: 700; color: var(--text); }
+    .stat-value.gold { color: var(--gold); }
+    .stat-label { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500; margin-top: 2px; }
+
+    /* ── REVIEW CARDS ── */
+    .review-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 10px;
+      transition: border-color .15s;
+    }
+    .review-card:hover { border-color: var(--blue-mid); }
+
+    .review-restaurant-link {
+      font-weight: 700;
+      color: var(--text);
+      text-decoration: none;
+      transition: color .15s;
+    }
+    .review-restaurant-link:hover { color: var(--blue); }
+
+    .stars-display { display: flex; gap: 2px; }
+    .star { width: 14px; height: 14px; }
+    .star-filled { color: var(--gold); }
+    .star-empty { color: var(--border); }
+
+    .btn-sm {
+      font-size: 12px;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 10px;
+      background: transparent;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      transition: background .15s, color .15s, border-color .15s;
+    }
+    .btn-sm:hover { background: var(--surface); }
+    .btn-sm.danger:hover { background: #fef2f2; color: var(--red); border-color: #fecaca; }
+
+    /* ── BUCKET LIST CARDS ── */
+    .bucket-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      transition: border-color .15s;
+    }
+    .bucket-card:hover { border-color: var(--blue-mid); }
+
+    .bucket-name {
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text);
+      text-decoration: none;
+      display: block;
+      transition: color .15s;
+    }
+    .bucket-name:hover { color: var(--blue); }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 40px 20px;
+      text-align: center;
+    }
+    .empty-icon { width: 40px; height: 40px; color: var(--border); margin: 0 auto 10px; }
+    .empty-text { font-size: 13px; color: var(--muted); }
+    .empty-link { display: inline-block; margin-top: 8px; font-size: 13px; color: var(--blue); font-weight: 500; text-decoration: none; }
+    .empty-link:hover { text-decoration: underline; }
+
+    /* ── PRICE BADGE ── */
+    .price-badge {
+      font-size: 11px;
+      background: var(--surface);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 5px;
+      font-weight: 600;
+    }
+
+    /* ── CUISINE BADGE ── */
+    .cuisine-badge {
+      font-size: 10px;
+      background: var(--blue-lt);
+      color: var(--blue);
+      border: 1px solid var(--blue-mid);
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+
+    /* ── FLASH MESSAGES ── */
+    .flash-danger  { background: #fef2f2; color: var(--red); border: 1px solid #fecaca; border-radius: 8px; padding: 10px 14px; font-size: 13px; margin-bottom: 14px; }
+    .flash-success { background: #f0fdf4; color: var(--green); border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px 14px; font-size: 13px; margin-bottom: 14px; }
+
+    /* ── REMOVE BUTTON ── */
+    .btn-remove {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: transparent;
+      cursor: pointer;
+      color: var(--muted);
+      transition: background .15s, color .15s, border-color .15s;
+      flex-shrink: 0;
+    }
+    .btn-remove:hover { background: #fef2f2; color: var(--red); border-color: #fecaca; }
   </style>
 </head>
- 
+
+<body>
+
 <nav>
-  <span class="nav-logo">tummi</span>
+  <a href="/" class="nav-logo">tummi</a>
   <div class="nav-links">
     <a href="/">Home</a>
     <a href="/profile">Profile</a>
@@ -35,205 +233,199 @@
   </div>
 </nav>
 
-<body class="bg-gray-100 min-h-screen">
- 
-  <div class="max-w-4xl mx-auto px-4 py-8">
- 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          {% if category == 'danger' %}
-            <div class="mb-4 p-3 rounded-lg bg-red-100 text-red-700 border border-red-300 text-sm">{{ message }}</div>
-          {% elif category == 'success' %}
-            <div class="mb-4 p-3 rounded-lg bg-green-100 text-green-700 border border-green-300 text-sm">{{ message }}</div>
-          {% endif %}
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
- 
-    <!-- PROFILE HEADER -->
-    <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-      <div class="flex items-start gap-4">
-        <div class="flex-1 min-w-0">
-          <h1 class="text-2xl font-black text-gray-900 tracking-tight leading-tight">{{ page_user.username }}</h1>
-          <div class="flex gap-3 mt-3">
-            <div class="bg-gray-100 rounded-lg px-4 py-2 text-center">
-              <div class="text-xl font-bold text-gray-900">{{ reviews | length }}</div>
-              <div class="text-xs text-gray-500 uppercase tracking-wide font-medium">Reviews</div>
-            </div>
-            <div class="bg-gray-100 rounded-lg px-4 py-2 text-center">
-              <div class="text-xl font-bold text-gray-900">{{ bucket_list | length }}</div>
-              <div class="text-xs text-gray-500 uppercase tracking-wide font-medium">Want to try</div>
-            </div>
-            {% if reviews %}
-            <div class="bg-gray-100 rounded-lg px-4 py-2 text-center">
-              <div class="text-xl font-bold text-orange-600">
-                {{ "%.1f" | format(reviews | map(attribute='rating') | list | sum / reviews | length) }}
-              </div>
-              <div class="text-xs text-gray-500 uppercase tracking-wide font-medium">Avg rating</div>
-            </div>
-            {% endif %}
+<div class="max-w-3xl mx-auto px-4 py-8">
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        {% if category == 'danger' %}
+          <div class="flash-danger">{{ message }}</div>
+        {% elif category == 'success' %}
+          <div class="flash-success">{{ message }}</div>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- PROFILE HEADER -->
+  <div style="background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:20px 24px; margin-bottom:20px;">
+    <div style="display:flex; align-items:flex-start; gap:16px;">
+      <!-- Avatar placeholder -->
+      <div style="width:56px; height:56px; border-radius:50%; background:var(--blue-lt); border:2px solid var(--blue-mid); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+        <span style="font-size:22px; font-weight:700; color:var(--blue);">{{ page_user._id[0].upper() }}</span>
+      </div>
+      <div style="flex:1; min-width:0;">
+        <h1 style="font-size:1.5rem; font-weight:800; color:var(--text); letter-spacing:-0.3px; line-height:1.2;">{{ page_user._id }}</h1>
+        <div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;">
+          <div class="stat-card">
+            <div class="stat-value">{{ reviews | length }}</div>
+            <div class="stat-label">Reviews</div>
           </div>
+          <div class="stat-card">
+            <div class="stat-value">{{ bucket_list | length }}</div>
+            <div class="stat-label">Want to Try</div>
+          </div>
+          {% if reviews %}
+          <div class="stat-card">
+            <div class="stat-value gold">{{ "%.1f" | format(reviews | map(attribute='rating') | list | sum / reviews | length) }}</div>
+            <div class="stat-label">Avg Rating</div>
+          </div>
+          {% endif %}
         </div>
       </div>
     </div>
- 
-    <div class="flex border-b border-gray-200 mb-5">
-      <a id="tab-reviews" href="#reviews"
-         class="px-5 py-2.5 text-sm font-semibold border-b-2 border-transparent -mb-px transition-colors">
-        Reviews
-      </a>
-      <a id="tab-bucket" href="#bucket"
-         class="px-5 py-2.5 text-sm font-semibold border-b-2 border-transparent text-gray-500 hover:text-gray-800 -mb-px transition-colors">
-        Bucket List
-      </a>
-    </div>
- 
-    <!-- REVIEWS PANEL -->
-    <div id="panel-reviews">
-      <span id="reviews" class="sr-only" tabindex="-1"></span>
-      <div class="flex items-baseline justify-between mb-3">
-        <h2 class="font-bold text-gray-800">Reviews</h2>
-        <span class="text-xs text-gray-400">{{ reviews | length }} total</span>
-      </div>
- 
-      {% if reviews %}
-        {% for review in reviews %}
-        <div id="review-{{ review._id }}" class="bg-white border border-gray-200 rounded-xl p-4 mb-3 hover:border-gray-300 transition-colors">
-          <div class="flex items-start justify-between gap-3 mb-2">
-            <div>
-              <a href="/restaurant/{{ review.restaurant_id }}" class="font-bold text-gray-900 hover:text-orange-600 transition-colors">
-                {{ review.restaurant_name }}
-              </a>
-              {% if review.restaurant_cuisine %}
-                <p class="text-xs text-gray-400 mt-0.5">{{ review.restaurant_cuisine }}</p>
-              {% endif %}
-            </div>
-            <div class="flex gap-0.5 flex-shrink-0" aria-label="{{ review.rating }} out of 5 stars">
-              {% for i in range(1, 6) %}
-                <svg class="w-3.5 h-3.5 {% if i <= review.rating %}text-orange-500{% else %}text-gray-200{% endif %}" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                </svg>
-              {% endfor %}
-            </div>
-          </div>
- 
-          {% if review.body %}
-            <p class="text-sm text-gray-600 leading-relaxed">{{ review.body }}</p>
-          {% endif %}
- 
-          <div class="flex items-center justify-between mt-3">
-            {% if review.created_at %}
-              <span class="text-xs text-gray-400">
-                {{ review.created_at.strftime('%b %d, %Y') if review.created_at else '' }}
-              </span>
-            {% else %}
-              <span></span>
-            {% endif %}
- 
-            {% if is_own_profile %}
-            <div class="flex gap-2">
-              <a href="/restaurant/{{ review.restaurant_id }}"
-                 class="text-xs text-gray-500 border border-gray-200 hover:bg-gray-50 px-2.5 py-1 rounded-lg transition-colors">
-                View
-              </a>
-              <button
-                onclick="deleteReview('{{ review._id }}')"
-                class="text-xs text-gray-500 border border-gray-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 px-2.5 py-1 rounded-lg transition-colors">
-                Delete
-              </button>
-            </div>
-            {% endif %}
-          </div>
-        </div>
-        {% endfor %}
- 
-      {% else %}
-        <div class="bg-white border border-gray-200 rounded-xl p-10 text-center">
-          <svg class="w-10 h-10 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/>
-          </svg>
-          <p class="text-sm text-gray-400">
-            {% if is_own_profile %}You haven't reviewed anything yet.{% else %}No reviews yet.{% endif %}
-          </p>
-          {% if is_own_profile %}
-            <a href="/" class="inline-block mt-2 text-sm text-orange-600 font-medium hover:underline">Find a restaurant →</a>
-          {% endif %}
-        </div>
-      {% endif %}
-    </div>
- 
-    <!-- BUCKET LIST PANEL -->
-    <div id="panel-bucket">
-      <span id="bucket" class="sr-only" tabindex="-1"></span>
-      <div class="flex items-baseline justify-between mb-3">
-        <h2 class="font-bold text-gray-800">Bucket List</h2>
-        <span class="text-xs text-gray-400">{{ bucket_list | length }} places</span>
-      </div>
- 
-      {% if bucket_list %}
-        {% for place in bucket_list %}
-        <div id="bucket-{{ place._id }}" class="bg-white border border-gray-200 rounded-xl p-4 mb-3 flex items-center justify-between gap-4 hover:border-gray-300 transition-colors">
-          <div class="flex-1 min-w-0">
-            <a href="/restaurant/{{ place._id }}" class="font-bold text-gray-900 hover:text-orange-600 transition-colors text-sm block truncate">
-              {{ place.name }}
-            </a>
-            <p class="text-xs text-gray-400 mt-0.5 truncate">
-              {{ place.cuisine }}{% if place.address %} · {{ place.address }}{% endif %}
-            </p>
-          </div>
-          <div class="flex items-center gap-2 flex-shrink-0">
-            {% if place.avg_rating %}
-              <span class="text-sm font-semibold text-orange-500">★ {{ "%.1f" | format(place.avg_rating) }}</span>
-            {% endif %}
-            {% if place.price %}
-              <span class="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-md font-medium">{{ place.price_range }}</span>
-            {% endif %}
-            {% if is_own_profile %}
-              <button
-                onclick="removeFromBucket('{{ place._id }}')"
-                aria-label="Remove {{ place.name }} from bucket list"
-                class="w-8 h-8 flex items-center justify-center border border-gray-200 rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-500 hover:border-red-200 transition-colors">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-              </button>
-            {% endif %}
-          </div>
-        </div>
-        {% endfor %}
- 
-      {% else %}
-        <div class="bg-white border border-gray-200 rounded-xl p-10 text-center">
-          <svg class="w-10 h-10 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"/>
-          </svg>
-          <p class="text-sm text-gray-400">
-            {% if is_own_profile %}Your bucket list is empty.{% else %}No bucket list yet.{% endif %}
-          </p>
-          {% if is_own_profile %}
-            <a href="/" class="inline-block mt-2 text-sm text-orange-600 font-medium hover:underline">Browse restaurants →</a>
-          {% endif %}
-        </div>
-      {% endif %}
-    </div>
- 
   </div>
- 
-  <script>
-    function deleteReview(id) {
-      if (!confirm('Delete this review?')) return;
-      fetch('/review/delete/' + id, { method: 'POST' })
-        .then(r => r.json())
-        .then(d => { if (d.message) document.getElementById('review-' + id).remove(); });
-    }
- 
-    function removeFromBucket(id) {
-      fetch('/bucket-list/remove/' + id, { method: 'POST' })
-        .then(r => r.json())
-        .then(d => { if (d.message) document.getElementById('bucket-' + id).remove(); });
-    }
-  </script>
- 
+
+  <!-- TABS -->
+  <div style="display:flex; border-bottom:1px solid var(--border); margin-bottom:18px;">
+    <a id="tab-reviews" href="#reviews"
+       style="padding:10px 20px; font-size:14px; font-weight:600; border-bottom:2px solid transparent; margin-bottom:-1px; text-decoration:none; color:var(--muted); transition:color .15s, border-color .15s;">
+      Reviews
+    </a>
+    <a id="tab-bucket" href="#bucket"
+       style="padding:10px 20px; font-size:14px; font-weight:600; border-bottom:2px solid transparent; margin-bottom:-1px; text-decoration:none; color:var(--muted); transition:color .15s, border-color .15s;">
+      Bucket List
+    </a>
+  </div>
+
+  <!-- REVIEWS PANEL -->
+  <div id="panel-reviews">
+    <span id="reviews" class="sr-only" tabindex="-1"></span>
+    <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px;">
+      <h2 style="font-weight:700; color:var(--text); font-size:15px;">Reviews</h2>
+      <span style="font-size:11px; color:var(--muted);">{{ reviews | length }} total</span>
+    </div>
+
+    {% if reviews %}
+      {% for review in reviews %}
+      <div id="review-{{ review._id }}" class="review-card">
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:8px;">
+          <div>
+            <a href="/restaurant/{{ review.restaurant_id }}" class="review-restaurant-link">
+              {{ review.restaurant_name }}
+            </a>
+            {% if review.restaurant_cuisine %}
+              <div style="margin-top:3px;">
+                <span class="cuisine-badge">{{ review.restaurant_cuisine }}</span>
+              </div>
+            {% endif %}
+          </div>
+          <div class="stars-display" aria-label="{{ review.rating }} out of 5 stars">
+            {% for i in range(1, 6) %}
+              <svg class="star {% if i <= review.rating %}star-filled{% else %}star-empty{% endif %}" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+              </svg>
+            {% endfor %}
+          </div>
+        </div>
+
+        {% if review.body %}
+          <p style="font-size:13px; color:var(--muted); line-height:1.5; margin-bottom:10px;">{{ review.body }}</p>
+        {% endif %}
+
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-top:6px;">
+          {% if review.created_at %}
+            <span style="font-size:11px; color:var(--muted);">
+              {{ review.created_at.strftime('%b %d, %Y') if review.created_at else '' }}
+            </span>
+          {% else %}
+            <span></span>
+          {% endif %}
+
+          {% if is_own_profile %}
+          <div style="display:flex; gap:6px;">
+            <a href="/restaurant/{{ review.restaurant_id }}" class="btn-sm">View</a>
+            <button onclick="deleteReview('{{ review._id }}')" class="btn-sm danger">Delete</button>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+
+    {% else %}
+      <div class="empty-state">
+        <svg class="empty-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/>
+        </svg>
+        <p class="empty-text">
+          {% if is_own_profile %}You haven't reviewed anything yet.{% else %}No reviews yet.{% endif %}
+        </p>
+        {% if is_own_profile %}
+          <a href="/" class="empty-link">Find a restaurant →</a>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- BUCKET LIST PANEL -->
+  <div id="panel-bucket">
+    <span id="bucket" class="sr-only" tabindex="-1"></span>
+    <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px;">
+      <h2 style="font-weight:700; color:var(--text); font-size:15px;">Bucket List</h2>
+      <span style="font-size:11px; color:var(--muted);">{{ bucket_list | length }} places</span>
+    </div>
+
+    {% if bucket_list %}
+      {% for place in bucket_list %}
+      <div id="bucket-{{ place._id }}" class="bucket-card">
+        <div style="flex:1; min-width:0;">
+          <a href="/restaurant/{{ place._id }}" class="bucket-name">{{ place.name }}</a>
+          <p style="font-size:12px; color:var(--muted); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+            {% if place.cuisine %}{{ place.cuisine }}{% endif %}{% if place.address %} · {{ place.address }}{% endif %}
+          </p>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+          {% if place.avg_rating and place.avg_rating > 0 %}
+            <span style="font-size:13px; font-weight:700; color:var(--gold);">★ {{ "%.1f" | format(place.avg_rating) }}</span>
+          {% endif %}
+          {% if place.price %}
+            <span class="price-badge">${{ place.price }}</span>
+          {% endif %}
+          {% if is_own_profile %}
+            <button
+              onclick="removeFromBucket('{{ place._id }}')"
+              aria-label="Remove {{ place.name }} from bucket list"
+              class="btn-remove">
+              <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+
+    {% else %}
+      <div class="empty-state">
+        <svg class="empty-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"/>
+        </svg>
+        <p class="empty-text">
+          {% if is_own_profile %}Your bucket list is empty.{% else %}No bucket list yet.{% endif %}
+        </p>
+        {% if is_own_profile %}
+          <a href="/" class="empty-link">Browse restaurants →</a>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<script>
+  function deleteReview(id) {
+    if (!confirm('Delete this review?')) return;
+    fetch('/review/delete/' + id, { method: 'POST' })
+      .then(r => r.json())
+      .then(d => { if (d.message) document.getElementById('review-' + id).remove(); });
+  }
+
+  function removeFromBucket(id) {
+    fetch('/bucket-list/remove/' + id, { method: 'POST' })
+      .then(r => r.json())
+      .then(d => { if (d.message) document.getElementById('bucket-' + id).remove(); });
+  }
+</script>
+
 </body>
 </html>
