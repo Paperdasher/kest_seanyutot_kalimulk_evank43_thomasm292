@@ -69,20 +69,25 @@
     .nav-links a.logout:hover { color: #fef2f2; }
 
     /* ── TAB SYSTEM ── */
-    /* Default: reviews visible, bucket hidden */
     #panel-reviews { display: block; }
     #panel-bucket  { display: none;  }
 
-    /* When #bucket is the URL target, flip them */
-    body:has(#bucket:target) #panel-reviews { display: none; }
-    body:has(#bucket:target) #panel-bucket  { display: block; }
-
-    /* Tab underlines — match blue theme */
-    body:not(:has(#bucket:target)) #tab-reviews {
-      border-bottom-color: var(--blue);
-      color: var(--blue);
+    .tab-btn {
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      text-decoration: none;
+      color: var(--muted);
+      transition: color .15s, border-color .15s;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+      cursor: pointer;
     }
-    body:has(#bucket:target) #tab-bucket {
+    .tab-btn.active {
       border-bottom-color: var(--blue);
       color: var(--blue);
     }
@@ -278,26 +283,24 @@
 
   <!-- TABS -->
   <div style="display:flex; border-bottom:1px solid var(--border); margin-bottom:18px;">
-    <a id="tab-reviews" href="#reviews"
-       style="padding:10px 20px; font-size:14px; font-weight:600; border-bottom:2px solid transparent; margin-bottom:-1px; text-decoration:none; color:var(--muted); transition:color .15s, border-color .15s;">
+    <button id="tab-reviews" class="tab-btn active" onclick="switchTab('reviews')">
       Reviews
-    </a>
-    <a id="tab-bucket" href="#bucket"
-       style="padding:10px 20px; font-size:14px; font-weight:600; border-bottom:2px solid transparent; margin-bottom:-1px; text-decoration:none; color:var(--muted); transition:color .15s, border-color .15s;">
+    </button>
+    <button id="tab-bucket" class="tab-btn" onclick="switchTab('bucket')">
       Bucket List
-    </a>
+    </button>
   </div>
 
   <!-- REVIEWS PANEL -->
   <div id="panel-reviews">
-    <span id="reviews" class="sr-only" tabindex="-1"></span>
     <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px;">
       <h2 style="font-weight:700; color:var(--text); font-size:15px;">Reviews</h2>
-      <span style="font-size:11px; color:var(--muted);">{{ reviews | length }} total</span>
+      <span style="font-size:11px; color:var(--muted);">{{ reviews | selectattr('body') | list | length }} total</span>
     </div>
 
-    {% if reviews %}
-      {% for review in reviews %}
+    {% set text_reviews = reviews | selectattr('body') | list %}
+    {% if text_reviews %}
+      {% for review in text_reviews %}
       <div id="review-{{ review._id }}" class="review-card">
         <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:8px;">
           <div>
@@ -356,10 +359,7 @@
       </div>
     {% endif %}
   </div>
-
-  <!-- BUCKET LIST PANEL -->
   <div id="panel-bucket">
-    <span id="bucket" class="sr-only" tabindex="-1"></span>
     <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px;">
       <h2 style="font-weight:700; color:var(--text); font-size:15px;">Bucket List</h2>
       <span style="font-size:11px; color:var(--muted);">{{ bucket_list | length }} places</span>
@@ -413,6 +413,14 @@
 </div>
 
 <script>
+  function switchTab(tab) {
+    const isReviews = tab === 'reviews';
+    document.getElementById('panel-reviews').style.display = isReviews ? 'block' : 'none';
+    document.getElementById('panel-bucket').style.display  = isReviews ? 'none'  : 'block';
+    document.getElementById('tab-reviews').classList.toggle('active', isReviews);
+    document.getElementById('tab-bucket').classList.toggle('active', !isReviews);
+  }
+
   function deleteReview(id) {
     if (!confirm('Delete this review?')) return;
     fetch('/review/delete/' + id, { method: 'POST' })
