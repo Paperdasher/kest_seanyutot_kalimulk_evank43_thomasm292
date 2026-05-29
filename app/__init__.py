@@ -43,6 +43,7 @@ def restaurant_page(id):
     restaurant = data.get_restaurant(id)
     if not restaurant:
         return "Restaurant not found", 404
+    restaurant["price"] = int(restaurant["price"])
 
     reviews = data.get_reviews_for_restaurant(id)
     avg = data.get_avg_rating(id)
