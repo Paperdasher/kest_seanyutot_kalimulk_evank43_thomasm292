@@ -6,6 +6,7 @@
 
 from flask import Flask, render_template, request, flash, url_for, redirect, session, jsonify
 import folium
+from datetime import datetime
 
 import data
 
@@ -36,10 +37,34 @@ def get_avg_rating(id):
 
 @app.route("/restaurant/<int:id>")
 def restaurant_page(id):
+    if 'username' not in session:
+        return redirect(url_for("login"))
+
     restaurant = data.get_restaurant(id)
+    if not restaurant:
+        return "Restaurant not found", 404
+
     reviews = data.get_reviews_for_restaurant(id)
     avg = data.get_avg_rating(id)
-    return render_template("restaurant.html", restaurant=restaurant, reviews=reviews, avg_rating=avg)
+    review_count = data.get_review_count(id)
+
+    current_user = data.get_user(session['username'])
+    in_bucket = str(id) in current_user.get("wanttotry", [])
+
+    # Check if the logged-in user already left a review for this restaurant
+    user_review = next((r for r in reviews if r.get("user") == session['username']), None)
+
+    return render_template(
+        "restaurant.html",
+        restaurant=restaurant,
+        reviews=reviews,
+        avg_rating=avg,
+        review_count=review_count,
+        in_bucket=in_bucket,
+        user_review=user_review,
+        username=session['username'],
+        now=datetime.now(),
+    )
 
 @app.route("/logout")
 def logout():
@@ -210,6 +235,19 @@ def delete_review(review_id):
     if deleted:
         return jsonify({"message": "deleted"})
     return jsonify({"error": "Unauthorized"}), 403
+
+@app.route("/review/edit/<int:review_id>", methods=["POST"])
+def edit_review(review_id):
+    if "username" not in session:
+        return redirect(url_for("login"))
+    new_rating = int(request.form.get("rating", 0))
+    new_text = request.form.get("body", "").strip()
+    restaurant_id = int(request.form.get("restaurant_id", 0))
+    if new_rating < 1 or new_rating > 5:
+        flash("Please select a rating.", "danger")
+        return redirect(url_for("restaurant_page", id=restaurant_id))
+    data.edit_review(review_id, session["username"], new_rating, new_text)
+    return redirect(url_for("restaurant_page", id=restaurant_id))
 
 # -----------------------------------------------------------------------
 # Admin: Restaurant Fill Tool
