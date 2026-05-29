@@ -167,14 +167,8 @@ def get_reviews_for_restaurant(restaurant_id):
 
 def get_non_empty_reviews_for_restaurant(restaurant_id):
     """Fetch all non empty text reviews for a restaurant detail page."""
-    restaurants = get_reviews_for_restaurant(restaurant_id)
-
-    for i in range(len(restaurants)):
-        if restaurants[i]["text"] is None or restaurants[i]["text"] == "":
-            restaurants.pop(i)
-            i -= 1
-
-    return restaurants
+    reviews = get_reviews_for_restaurant(restaurant_id)
+    return [r for r in reviews if r.get("text")]
 
 def add_review(username, restaurant_id, rating, text=""):
     """
