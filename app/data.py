@@ -157,9 +157,24 @@ def get_review(review_id):
     """Fetch a single review by ID."""
     return mongo.reviews.find_one({"_id": review_id})
 
+def get_user_review_for_restaurant(review_id, username):
+    """Fetch a single review by ID."""
+    return mongo.reviews.find_one({"_id": review_id, "user": username})
+
 def get_reviews_for_restaurant(restaurant_id):
     """Fetch all reviews for a restaurant detail page."""
     return list(mongo.reviews.find({"restaurant_id": restaurant_id}))
+
+def get_non_empty_reviews_for_restaurant(restaurant_id):
+    """Fetch all non empty text reviews for a restaurant detail page."""
+    restaurants = get_reviews_for_restaurant(restaurant_id)
+
+    for i in range(len(restaurants)):
+        if restaurants[i]["text"] is None or restaurants[i]["text"] == "":
+            restaurants.pop(i)
+            i -= 1
+
+    return restaurants
 
 def add_review(username, restaurant_id, rating, text=""):
     """

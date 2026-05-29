@@ -45,7 +45,7 @@ def restaurant_page(id):
         return "Restaurant not found", 404
     restaurant["price"] = int(restaurant["price"])
 
-    reviews = data.get_reviews_for_restaurant(id)
+    reviews = data.get_non_empty_reviews_for_restaurant(id)
     avg = data.get_avg_rating(id)
     review_count = data.get_review_count(id)
 
@@ -53,7 +53,7 @@ def restaurant_page(id):
     in_bucket = str(id) in current_user.get("wanttotry", [])
 
     # Check if the logged-in user already left a review for this restaurant
-    user_review = next((r for r in reviews if r.get("user") == session['username']), None)
+    user_review = data.get_user_review_for_restaurant(id, session['username'])
 
     return render_template(
         "restaurant.html",
