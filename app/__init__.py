@@ -35,6 +35,13 @@ def get_avg_rating(id):
     avg = data.get_avg_rating(id)
     return jsonify({"avg": avg})
 
+@app.route("/api/bucket-list")
+def get_bucket_list():
+    if 'username' not in session:
+        return jsonify([])
+    user = data.get_user(session['username'])
+    return jsonify(user.get("wanttotry", []))
+
 @app.route("/restaurant/<int:id>")
 def restaurant_page(id):
     if 'username' not in session:

@@ -482,6 +482,11 @@
           <input type="checkbox" id="viewport-only" checked="checked"> In view
         </label>
       </div>
+      <div class="controls-row" style="margin-top:6px">
+        <label class="viewport-toggle" title="Only show restaurants in your bucket list">
+          <input type="checkbox" id="bucket-only"> 🔖 Bucket list only
+        </label>
+      </div>
       <button class="btn-apply" onclick="applyFilters()">Search</button>
     </div>
 
@@ -523,6 +528,7 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 
 // ── State ──
 let allRestaurants = [];
+let bucketIds = new Set();
 let markers = {};
 let activeId = null;
 
@@ -587,8 +593,12 @@ function toggleSidebar() {
 // ── Load ──
 async function loadAllRestaurants() {
   try {
-    const res = await fetch('/api/restaurants');
-    allRestaurants = await res.json();
+    const [resData, bucketData] = await Promise.all([
+      fetch('/api/restaurants').then(r => r.json()),
+      fetch('/api/bucket-list').then(r => r.json()),
+    ]);
+    allRestaurants = resData;
+    bucketIds = new Set(bucketData.map(String));
     console.log(`Loaded ${allRestaurants.length} restaurants`, allRestaurants[0] || 'empty');
     allRestaurants.forEach(r => {
       const { avg, total } = avgRating(r);
@@ -610,9 +620,11 @@ function applyFilters() {
   const maxPrice    = parseInt(document.getElementById('filter-price').value) || null;
   const limitVal    = parseInt(document.getElementById('limit-select').value);
   const viewportOnly = document.getElementById('viewport-only').checked;
+  const bucketOnly  = document.getElementById('bucket-only').checked;
   const bounds      = viewportOnly ? map.getBounds() : null;
 
   let filtered = allRestaurants.filter(r => {
+    if (bucketOnly && !bucketIds.has(String(r._id))) return false;
     if (keyword) {
       if (!(r.name||'').toLowerCase().includes(keyword) &&
           !(r.food_type||'').toLowerCase().includes(keyword)) return false;
