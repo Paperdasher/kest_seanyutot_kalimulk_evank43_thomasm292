@@ -379,7 +379,7 @@
             <span style="font-size:13px; font-weight:700; color:var(--gold);">★ {{ "%.1f" | format(place.avg_rating) }}</span>
           {% endif %}
           {% if place.price %}
-            <span class="price-badge">${{ place.price }}</span>
+            <span class="price-badge">{{ '$' * (place.price | int) }}</span>
           {% endif %}
           {% if is_own_profile %}
             <button
