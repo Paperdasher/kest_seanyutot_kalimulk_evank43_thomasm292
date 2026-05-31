@@ -104,3 +104,10 @@ RESTAURANT PAGE
   - Added restaurant template
   - Fixed navbar nonexistent in pages other than home
   - Debugging flash message not appearing issue
+
+DEVELOPER PREVIEWS: The Aftermath
+  - Add/remove restaurant capability(plan to implement next)
+  - Filter by location
+  - Responses to reviews(owner or other users)
+  - Search for users
+  - Good UI but extra unnecessary info on map
