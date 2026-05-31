@@ -11,14 +11,15 @@ tummi is a beli-clone that specifically caters towards Stuy students. On the app
 
 ## Live Site:
 Our program is hosted live [here](https://tummi.me)
+
 Backup livesite is hosted [here](https://tummiz.me)
 
 ### FEATURE SPOTLIGHT
-* <spotlight #1>
-* <spotlight #2>
+* Filter restaurants by name, max price, in view of current map
+* See info of each restaurants and other user's reviews/profile page
 
 ### KNOWN BUGS/ISSUES
-* <bug #1>
+* Partially outdated data, some restaurants pre-filled may be reloacated/out of business
 
 ## Install Guide:
 
