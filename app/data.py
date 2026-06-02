@@ -231,7 +231,7 @@ def get_affirmed_removals(username):
 
 def update_restaurant_meta(restaurant_id, food_type=None, schedule=None):
     """
-    Update food_type, restaurant_type, and/or schedule for a restaurant.
+    Update food_type and/or schedule for a restaurant.
     Used by the admin fill tool to patch restaurants imported from Kaggle.
     Only fields explicitly passed (not None) are updated.
     """
