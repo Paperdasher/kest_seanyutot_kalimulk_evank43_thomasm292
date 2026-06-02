@@ -123,10 +123,9 @@
       <select name="food_type" id="food_type">
         <option value="">— select —</option>
         {% for cuisine in [
-          'American','Bakery','Breakfast','Bubble Tea','Burgers','Caribbean','Chinese',
-          'Coffee','Deli','Dessert','Dominican','Greek','Indian','Italian','Japanese',
-          'Korean','Latin','Mediterranean','Mexican','Middle Eastern','Pizza','Ramen',
-          'Sandwiches','Seafood','Sushi','Thai','Turkish','Vegan','Vietnamese','Other'
+          'American','Chinese','Japanese','Korean','Mexican','Italian','Indian','Thai',
+          'Mediterranean','Pizza','Deli','Sandwiches','Burgers','Seafood','Vegan',
+          'Desserts','Cafe','Other'
         ] %}
           <option value="{{ cuisine }}">{{ cuisine }}</option>
         {% endfor %}
