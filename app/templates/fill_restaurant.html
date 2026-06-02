@@ -185,14 +185,10 @@
       <select name="food_type" id="food_type">
         <option value="">— select —</option>
         {% for cuisine in [
-          'American', 'Bakery', 'Breakfast', 'Bubble Tea', 'Burgers',
-          'Cafe', 'Caribbean', 'Chinese', 'Coffee', 'Deli', 'Dessert',
-          'Dominican', 'Ethiopian', 'Filipino', 'Greek',
-          'Indian', 'Italian', 'Japanese', 'Jewish', 'Korean',
-          'Latin', 'Mediterranean', 'Mexican', 'Middle Eastern',
-          'Pakistani', 'Pizza', 'Ramen', 'Sandwiches', 'Seafood',
-          'Soul Food', 'Sushi', 'Thai', 'Turkish', 'Vegan',
-          'Vietnamese', 'West African', 'Other'
+          'American', 'Chinese', 'Japanese', 'Korean', 'Mexican',
+          'Italian', 'Indian', 'Thai', 'Mediterranean', 'Pizza',
+          'Deli', 'Sandwiches', 'Burgers', 'Seafood', 'Vegan',
+          'Desserts', 'Cafe', 'Other'
         ] %}
           <option value="{{ cuisine }}"
             {% if restaurant.food_type == cuisine %}selected{% endif %}>
