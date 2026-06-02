@@ -79,9 +79,155 @@ def add_restaurant(name, lat, lng, address, price, food_type, schedule, rating, 
         "reviews": [],
         # rating is a dict: {"1": count, "2": count, "3": count, "4": count, "5": count}
         "rating": rating,
-        "link": link
+        "link": link,
+        "proposed": False               # confirmed restaurant (not awaiting affirmations)
     })
     return restaurant_id
+
+# -----------------------------------------------------------------------
+# Proposal Functions (user-submitted additions / removals)
+# -----------------------------------------------------------------------
+# A change (adding a new restaurant or removing an existing one) needs this
+# many users to affirm it before it takes effect. The proposer counts as the
+# first affirmation, so an addition needs the proposer + 4 others.
+REQUIRED_AFFIRMATIONS = 5
+
+def add_proposed_restaurant(name, lat, lng, price, food_type, schedule, proposed_by, address=""):
+    """
+    Insert a user-proposed restaurant. It is added to the database immediately
+    so it behaves like a normal restaurant (shows on the map and has its own
+    page), but carries a `proposed` flag and a list of affirming usernames
+    until it gathers enough affirmations. The proposer automatically affirms
+    their own proposal.
+    """
+    last = mongo.restaurants.find_one(sort=[("_id", -1)])
+    restaurant_id = (last["_id"] + 1) if last else 1
+
+    mongo.restaurants.insert_one({
+        "_id": restaurant_id,
+        "name": name,
+        "lat": lat,
+        "lng": lng,
+        "address": address,
+        "price": price,
+        "food_type": food_type,
+        "schedule": schedule,
+        "reviews": [],
+        "rating": {},
+        "link": "",
+        "proposed": True,
+        "proposed_by": proposed_by,
+        "affirmations": [proposed_by],
+    })
+    return restaurant_id
+
+def affirm_addition(restaurant_id, username):
+    """
+    Add a user's affirmation to a proposed restaurant. If the proposal reaches
+    REQUIRED_AFFIRMATIONS, it is promoted to a normal restaurant.
+    Returns a status dict, or None if the restaurant isn't a pending proposal.
+    """
+    r = mongo.restaurants.find_one({"_id": restaurant_id})
+    if not r or not r.get("proposed"):
+        return None
+
+    mongo.restaurants.update_one(
+        {"_id": restaurant_id},
+        {"$addToSet": {"affirmations": username}}
+    )
+
+    r = mongo.restaurants.find_one({"_id": restaurant_id})
+    count = len(r.get("affirmations", []))
+    if count >= REQUIRED_AFFIRMATIONS:
+        mongo.restaurants.update_one(
+            {"_id": restaurant_id},
+            {
+                "$set": {"proposed": False},
+                "$unset": {"affirmations": "", "proposed_by": ""}
+            }
+        )
+        return {"count": count, "promoted": True}
+    return {"count": count, "promoted": False}
+
+def unaffirm_addition(restaurant_id, username):
+    """
+    Remove a user's affirmation from a proposed restaurant. If no affirmations
+    remain, the proposal is withdrawn (the restaurant is deleted).
+    Returns a status dict, or None if the restaurant isn't a pending proposal.
+    """
+    r = mongo.restaurants.find_one({"_id": restaurant_id})
+    if not r or not r.get("proposed"):
+        return None
+
+    mongo.restaurants.update_one(
+        {"_id": restaurant_id},
+        {"$pull": {"affirmations": username}}
+    )
+
+    r = mongo.restaurants.find_one({"_id": restaurant_id})
+    count = len(r.get("affirmations", []))
+    if count == 0:
+        mongo.restaurants.delete_one({"_id": restaurant_id})
+        return {"count": 0, "withdrawn": True}
+    return {"count": count, "withdrawn": False}
+
+def affirm_removal(restaurant_id, username):
+    """
+    Add a user's affirmation that an existing restaurant should be removed.
+    The first affirmation creates the removal proposal. If the proposal reaches
+    REQUIRED_AFFIRMATIONS, the restaurant and its reviews are deleted.
+    Returns a status dict, or None if the restaurant doesn't exist or is itself
+    still a pending addition proposal.
+    """
+    r = mongo.restaurants.find_one({"_id": restaurant_id})
+    if not r or r.get("proposed"):
+        return None
+
+    mongo.restaurants.update_one(
+        {"_id": restaurant_id},
+        {"$addToSet": {"removal_affirmations": username}}
+    )
+
+    r = mongo.restaurants.find_one({"_id": restaurant_id})
+    count = len(r.get("removal_affirmations", []))
+    if count >= REQUIRED_AFFIRMATIONS:
+        mongo.reviews.delete_many({"restaurant_id": restaurant_id})
+        mongo.restaurants.delete_one({"_id": restaurant_id})
+        return {"count": count, "removed": True}
+    return {"count": count, "removed": False}
+
+def unaffirm_removal(restaurant_id, username):
+    """
+    Remove a user's affirmation for a restaurant's removal. If no affirmations
+    remain, the removal proposal is cancelled.
+    Returns a status dict, or None if the restaurant doesn't exist.
+    """
+    r = mongo.restaurants.find_one({"_id": restaurant_id})
+    if not r:
+        return None
+
+    mongo.restaurants.update_one(
+        {"_id": restaurant_id},
+        {"$pull": {"removal_affirmations": username}}
+    )
+
+    r = mongo.restaurants.find_one({"_id": restaurant_id})
+    count = len(r.get("removal_affirmations", []))
+    if count == 0:
+        mongo.restaurants.update_one(
+            {"_id": restaurant_id},
+            {"$unset": {"removal_affirmations": ""}}
+        )
+    return {"count": count}
+
+def get_affirmed_proposals(username):
+    """Return pending proposed restaurants this user has affirmed (including
+    ones they originally proposed)."""
+    return list(mongo.restaurants.find({"proposed": True, "affirmations": username}))
+
+def get_affirmed_removals(username):
+    """Return restaurants whose removal this user has affirmed."""
+    return list(mongo.restaurants.find({"removal_affirmations": username}))
 
 def update_restaurant_meta(restaurant_id, food_type=None, schedule=None):
     """

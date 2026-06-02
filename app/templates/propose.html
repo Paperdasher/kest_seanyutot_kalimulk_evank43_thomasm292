@@ -1,0 +1,210 @@
+<!--
+  Sean Takahashi, Evan Khosh, Kalimul Kaif, Thomas Mackey
+  kest
+  SoftDev
+  P05
+  2026-06-01
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Propose a restaurant · tummi</title>
+  <link href="{{ url_for('static', filename='tailwind.min.css') }}" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    :root {
+      --blue:#2563eb; --blue-dk:#1d4ed8; --blue-lt:#eff6ff; --blue-mid:#bfdbfe;
+      --panel:#ffffff; --surface:#f8fafc; --border:#e2e8f0;
+      --text:#1e293b; --muted:#64748b; --red:#ef4444; --green:#16a34a;
+    }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:system-ui,-apple-system,sans-serif; background:var(--surface); color:var(--text); min-height:100vh; }
+
+    nav { background:var(--blue); padding:0 16px; height:52px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:1100; }
+    /* keep Leaflet's zoom/attribution controls below the sticky navbar */
+    .leaflet-top, .leaflet-bottom { z-index: 600; }
+    .nav-logo { font-size:20px; font-weight:700; color:#fff; letter-spacing:-0.3px; text-decoration:none; }
+    .nav-links a { font-size:14px; font-weight:500; color:rgba(255,255,255,0.85); text-decoration:none; margin-left:20px; }
+    .nav-links a:hover { color:#fff; }
+    .nav-links a.logout { color:#fca5a5; }
+
+    .page { max-width:780px; margin:0 auto; padding:28px 16px 60px; }
+    .back-link { display:inline-flex; align-items:center; gap:5px; font-size:13px; font-weight:500; color:var(--muted); text-decoration:none; margin-bottom:18px; }
+    .back-link:hover { color:var(--blue); }
+
+    h1 { font-size:1.6rem; font-weight:800; letter-spacing:-0.4px; margin-bottom:6px; }
+    .subtitle { font-size:13px; color:var(--muted); margin-bottom:20px; }
+
+    .card { background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:20px 22px; margin-bottom:16px; }
+    .card-title { font-size:13px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:14px; }
+
+    .error { background:#fef2f2; color:var(--red); border:1px solid #fecaca; border-radius:8px; padding:10px 14px; font-size:13px; margin-bottom:14px; }
+
+    #map { height:300px; border-radius:10px; border:1px solid var(--border); margin-bottom:10px; }
+    .coords { font-size:12px; color:var(--muted); font-family:ui-monospace,monospace; }
+    .coords.set { color:var(--green); }
+
+    label.fld { display:block; font-size:12px; font-weight:600; color:var(--muted); margin-bottom:6px; }
+    input[type="text"], select {
+      width:100%; padding:9px 11px; border:1px solid var(--border); border-radius:7px;
+      font-size:13px; font-family:inherit; color:var(--text); background:var(--surface);
+      outline:none; transition:border-color .15s, box-shadow .15s; margin-bottom:14px;
+    }
+    input[type="text"]:focus, select:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(37,99,235,.1); }
+
+    .schedule-grid { display:grid; gap:8px; }
+    .day-row { display:grid; grid-template-columns:60px 1fr 1fr 90px; align-items:center; gap:8px; padding:7px 10px; background:var(--surface); border:1px solid var(--border); border-radius:8px; }
+    .day-row .day-name { font-size:12px; font-weight:600; }
+    .day-row input[type="time"] { width:100%; padding:5px 7px; border:1px solid var(--border); border-radius:6px; font-size:12px; background:var(--panel); color:var(--text); }
+    .closed-label { display:flex; align-items:center; gap:5px; font-size:11px; color:var(--muted); cursor:pointer; white-space:nowrap; }
+    .closed-label input { accent-color:var(--red); cursor:pointer; }
+
+    .btn-primary { display:inline-flex; align-items:center; gap:6px; padding:10px 20px; background:var(--blue); color:#fff; border:none; border-radius:7px; font-size:14px; font-weight:600; cursor:pointer; transition:background .15s; }
+    .btn-primary:hover { background:var(--blue-dk); }
+    .btn-primary:disabled { background:var(--border); color:var(--muted); cursor:not-allowed; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">tummi</a>
+  <div class="nav-links">
+    <a href="/">Home</a>
+    <a href="/profile">Profile</a>
+    <a href="/logout" class="logout">Logout</a>
+  </div>
+</nav>
+
+<div class="page">
+  <a href="/" class="back-link">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Back to map
+  </a>
+
+  <h1>Propose a new restaurant</h1>
+  <p class="subtitle">Drop a pin where the restaurant is, then fill in its details. Your proposal needs 4 other users to affirm it before it's added for everyone.</p>
+
+  {% if error %}<div class="error">{{ error }}</div>{% endif %}
+
+  <form method="POST" action="{{ url_for('propose_restaurant') }}" id="propose-form">
+    <input type="hidden" name="lat" id="lat" value="{{ lat }}">
+    <input type="hidden" name="lng" id="lng" value="{{ lng }}">
+
+    <!-- Location -->
+    <div class="card">
+      <div class="card-title">Location</div>
+      <div id="map"></div>
+      <div class="coords" id="coords">Click on the map to drop a pin.</div>
+    </div>
+
+    <!-- Details -->
+    <div class="card">
+      <div class="card-title">Details</div>
+
+      <label class="fld" for="name">Name <span style="color:var(--red)">*</span></label>
+      <input type="text" name="name" id="name" placeholder="e.g. Ferry's Deli" required>
+
+      <label class="fld" for="address">Address</label>
+      <input type="text" name="address" id="address" placeholder="e.g. 215 Murray St, New York, NY 10282">
+
+      <label class="fld" for="price">Price <span style="color:var(--red)">*</span></label>
+      <select name="price" id="price" required>
+        <option value="">— select —</option>
+        <option value="1">$ — Inexpensive</option>
+        <option value="2">$$ — Moderate</option>
+        <option value="3">$$$ — Pricey</option>
+        <option value="4">$$$$ — Splurge</option>
+      </select>
+
+      <label class="fld" for="food_type">Cuisine / food type</label>
+      <select name="food_type" id="food_type">
+        <option value="">— select —</option>
+        {% for cuisine in [
+          'American','Chinese','Japanese','Korean','Mexican','Italian','Indian','Thai',
+          'Mediterranean','Pizza','Deli','Sandwiches','Burgers','Seafood','Vegan',
+          'Desserts','Cafe','Other'
+        ] %}
+          <option value="{{ cuisine }}">{{ cuisine }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Schedule -->
+    <div class="card">
+      <div class="card-title">Weekly hours</div>
+      <p style="font-size:12px; color:var(--muted); margin-bottom:12px;">Check "Closed" for days it's shut. Leave blank if unknown.</p>
+      <div class="schedule-grid">
+        {% for day in days %}
+        <div class="day-row">
+          <span class="day-name">{{ day[:3] }}</span>
+          <input type="time" name="open_{{ day }}" id="open-{{ day }}">
+          <input type="time" name="close_{{ day }}" id="close-{{ day }}">
+          <label class="closed-label">
+            <input type="checkbox" name="closed_{{ day }}" id="closed-{{ day }}" onchange="toggleDay('{{ day }}')">
+            Closed
+          </label>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <button type="submit" class="btn-primary" id="submit-btn">Submit proposal</button>
+  </form>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const NYC_BOUNDS = L.latLngBounds(L.latLng(40.4774, -74.2591), L.latLng(40.9176, -73.7004));
+  const latInput = document.getElementById('lat');
+  const lngInput = document.getElementById('lng');
+  const coordsEl = document.getElementById('coords');
+
+  const startLat = parseFloat(latInput.value);
+  const startLng = parseFloat(lngInput.value);
+  const hasStart = !isNaN(startLat) && !isNaN(startLng);
+
+  const map = L.map('map', {
+    center: hasStart ? [startLat, startLng] : [40.7174, -74.0134],
+    zoom: hasStart ? 17 : 15,
+    minZoom: 12, maxZoom: 19,
+    maxBounds: NYC_BOUNDS, maxBoundsViscosity: 0.9,
+  });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors', maxZoom: 19,
+  }).addTo(map);
+
+  let marker = null;
+  function setPin(latlng) {
+    if (marker) { marker.setLatLng(latlng); }
+    else {
+      marker = L.marker(latlng, { draggable: true }).addTo(map);
+      marker.on('dragend', () => setPin(marker.getLatLng()));
+    }
+    latInput.value = latlng.lat.toFixed(6);
+    lngInput.value = latlng.lng.toFixed(6);
+    coordsEl.textContent = `📍 ${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)} — drag the pin to fine-tune.`;
+    coordsEl.classList.add('set');
+  }
+
+  if (hasStart) setPin({ lat: startLat, lng: startLng });
+  map.on('click', e => setPin(e.latlng));
+
+  function toggleDay(day) {
+    const cb = document.getElementById('closed-' + day);
+    document.getElementById('open-' + day).disabled = cb.checked;
+    document.getElementById('close-' + day).disabled = cb.checked;
+  }
+
+  document.getElementById('propose-form').addEventListener('submit', e => {
+    if (!latInput.value || !lngInput.value) {
+      e.preventDefault();
+      coordsEl.textContent = 'Please drop a pin on the map first.';
+      coordsEl.style.color = 'var(--red)';
+    }
+  });
+</script>
+</body>
+</html>

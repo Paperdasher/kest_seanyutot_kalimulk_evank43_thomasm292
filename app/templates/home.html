@@ -428,6 +428,79 @@
       white-space: nowrap;
     }
     .leaflet-tooltip-top:before { border-top-color: rgba(15,23,42,0.88) !important; }
+
+    /* ── PROPOSED RESTAURANTS ── */
+    .proposed-pin {
+      background: var(--gold);
+      width: 22px;
+      height: 22px;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      border: 2px solid #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .proposed-pin span {
+      transform: rotate(45deg);
+      font-size: 11px;
+      font-weight: 800;
+      color: #3a2a00;
+    }
+    .proposed-badge {
+      background: var(--gold);
+      color: #3a2a00;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+    .popup-affirm {
+      display: block;
+      width: 100%;
+      margin-top: 6px;
+      padding: 6px 12px;
+      background: var(--gold);
+      color: #3a2a00;
+      border: none;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .popup-affirm:hover { filter: brightness(0.95); }
+    .popup-affirm.affirmed { background: var(--green); color: #fff; }
+    /* propose mode: crosshair over the map */
+    #map.propose-mode { cursor: crosshair; }
+
+    /* ── PROPOSE BUTTON (floats over map) ── */
+    #propose-btn {
+      position: absolute;
+      top: 68px;
+      right: 16px;
+      z-index: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 16px;
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,.18);
+      transition: background .15s;
+    }
+    #propose-btn:hover { background: var(--blue-dk); }
+    #propose-btn.active {
+      background: var(--gold);
+      color: #3a2a00;
+    }
   </style>
 </head>
 <body>
@@ -440,6 +513,11 @@
     <a href="/logout" class="logout">Logout</a>
   </div>
 </nav>
+
+<!-- Propose-mode banner (hidden by default) -->
+<div id="propose-banner" style="display:none; background:var(--gold); color:#3a2a00; padding:8px 16px; font-size:13px; font-weight:600; display:none; align-items:center; justify-content:space-between; z-index:900;">
+  <span>📍 Click anywhere on the map to drop a pin for the new restaurant.</span>
+</div>
 
 <div class="main-wrap">
 
@@ -504,10 +582,18 @@
 
   <!-- Map -->
   <div id="map"></div>
+
+  <!-- Propose-restaurant button (floats over the map) -->
+  <button id="propose-btn" onclick="toggleProposeMode()" title="Propose a new restaurant">
+    <span id="propose-btn-label">Propose</span>
+  </button>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+const CURRENT_USER = "{{ username }}";
+const REQUIRED_AFFIRMATIONS = 5;
+
 // ── NYC bounds ──
 const NYC_BOUNDS = L.latLngBounds(
   L.latLng(40.4774, -74.2591),
@@ -656,15 +742,39 @@ function renderMarkers(restaurants) {
   restaurants.forEach(r => {
     if (r.lat == null || r.lng == null) return;
 
-    const marker = L.marker([r.lat, r.lng]).addTo(map);
+    // Proposed restaurants get a distinct amber pin
+    const marker = r.proposed
+      ? L.marker([r.lat, r.lng], {
+          icon: L.divIcon({
+            className: '',
+            html: '<div class="proposed-pin"><span>?</span></div>',
+            iconSize: [22, 22],
+            iconAnchor: [11, 22],
+            popupAnchor: [0, -22],
+          })
+        }).addTo(map)
+      : L.marker([r.lat, r.lng]).addTo(map);
 
     // Hover tooltip — just the name
-    marker.bindTooltip(r.name, { direction: 'top', offset: [0, -28] });
+    marker.bindTooltip(r.proposed ? `${r.name} (proposed)` : r.name,
+                       { direction: 'top', offset: [0, -28] });
 
     // Click popup — stays open until explicitly closed
     const cuisine = `<span class="popup-cuisine">${r.food_type || 'Restaurant'}</span>`;
     const price   = r.price ? `<span class="popup-price">${priceLabel(r.price)}</span>` : '';
     const stars   = starsDisplay(r._avg, r._total);
+
+    let proposedBlock = '';
+    if (r.proposed) {
+      const affirmations = r.affirmations || [];
+      const affirmed = affirmations.includes(CURRENT_USER);
+      proposedBlock = `
+        <div class="popup-tags"><span class="proposed-badge">PROPOSED · ${affirmations.length}/${REQUIRED_AFFIRMATIONS}</span></div>
+        <button class="popup-affirm ${affirmed ? 'affirmed' : ''}" id="popup-affirm-${r._id}"
+                onclick="affirmFromPopup(${r._id}, ${affirmed})">
+          ${affirmed ? '✓ Affirmed — click to undo' : 'Affirm this restaurant'}
+        </button>`;
+    }
 
     marker.bindPopup(`
       <div class="popup-inner">
@@ -672,7 +782,8 @@ function renderMarkers(restaurants) {
         <div class="popup-tags">${cuisine}${price}</div>
         <div class="popup-address">${r.address || ''}</div>
         <div class="popup-stars">${stars}</div>
-        <a class="popup-btn" href="/restaurant/${r._id}">View restaurant →</a>
+        ${proposedBlock}
+        <a class="popup-btn" href="/restaurant/${r._id}" style="margin-top:6px;">View restaurant →</a>
       </div>
     `, { autoClose: false, closeOnClick: false });
 
@@ -696,11 +807,15 @@ function renderList(restaurants) {
       ? `<span class="r-stars">${'★'.repeat(Math.round(r._avg))} ${r._avg.toFixed(1)}</span>`
       : '';
 
+    const proposedTag = r.proposed
+      ? `<span class="proposed-badge">PROPOSED ${ (r.affirmations||[]).length }/${REQUIRED_AFFIRMATIONS}</span>`
+      : '';
+
     return `
       <div class="r-card" id="card-${r._id}" onclick="selectRestaurant('${r._id}')">
         <div class="r-card-header">
           <div class="r-name">${r.name}</div>
-          <div class="r-meta">${cuisine}${stars}${price}</div>
+          <div class="r-meta">${cuisine}${stars}${price}${proposedTag}</div>
         </div>
         <div class="r-detail">
           <div class="r-address">📍 ${r.address || 'Address unavailable'}</div>
@@ -775,6 +890,54 @@ map.on('popupclose', (e) => {
 document.getElementById('search-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') applyFilters();
 });
+
+// ── Propose mode: drop a pin, then go to the propose form ──
+let proposeMode = false;
+function toggleProposeMode() {
+  proposeMode = !proposeMode;
+  document.getElementById('propose-banner').style.display = proposeMode ? 'flex' : 'none';
+  document.getElementById('map').classList.toggle('propose-mode', proposeMode);
+  const btn = document.getElementById('propose-btn');
+  btn.classList.toggle('active', proposeMode);
+  document.getElementById('propose-btn-label').textContent = proposeMode ? 'Cancel' : 'Propose';
+  setTimeout(() => map.invalidateSize(), 50);
+}
+
+map.on('click', e => {
+  if (!proposeMode) return;
+  const { lat, lng } = e.latlng;
+  window.location.href = `/propose?lat=${lat.toFixed(6)}&lng=${lng.toFixed(6)}`;
+});
+
+// ── Affirm a proposed restaurant straight from its map popup ──
+async function affirmFromPopup(id, currentlyAffirmed) {
+  const url = currentlyAffirmed
+    ? `/restaurant/${id}/unaffirm`
+    : `/restaurant/${id}/affirm`;
+  try {
+    const res = await fetch(url, { method: 'POST' });
+    const data = await res.json();
+    if (data.error) { console.error(data.error); return; }
+
+    // Promotion or withdrawal changes the dataset — easiest to reload.
+    if (data.promoted || data.withdrawn) { location.reload(); return; }
+
+    // Otherwise update local state + button in place
+    const r = allRestaurants.find(x => String(x._id) === String(id));
+    if (r) {
+      r.affirmations = r.affirmations || [];
+      if (currentlyAffirmed) r.affirmations = r.affirmations.filter(u => u !== CURRENT_USER);
+      else if (!r.affirmations.includes(CURRENT_USER)) r.affirmations.push(CURRENT_USER);
+    }
+    const btn = document.getElementById(`popup-affirm-${id}`);
+    if (btn) {
+      const nowAffirmed = !currentlyAffirmed;
+      btn.classList.toggle('affirmed', nowAffirmed);
+      btn.textContent = nowAffirmed ? '✓ Affirmed — click to undo' : 'Affirm this restaurant';
+      btn.setAttribute('onclick', `affirmFromPopup(${id}, ${nowAffirmed})`);
+    }
+  } catch (e) { console.error('Affirm error:', e); }
+}
 
 loadAllRestaurants();
 </script>

@@ -125,8 +125,8 @@
 
     .stars-display { display: flex; gap: 2px; }
     .star { width: 14px; height: 14px; }
-    .star-filled { color: var(--gold); }
-    .star-empty { color: var(--border); }
+    .star-filled { fill: var(--gold); stroke: var(--gold); stroke-width: 1; }
+    .star-empty  { fill: #ffffff; stroke: var(--gold); stroke-width: 1.5; }
 
     .btn-sm {
       font-size: 12px;
@@ -202,6 +202,33 @@
       padding: 1px 6px;
       border-radius: 10px;
       font-weight: 600;
+    }
+
+    /* ── PROPOSAL / REMOVAL BADGES ── */
+    .affirm-badge {
+      font-size: 11px;
+      font-weight: 700;
+      background: #fffbeb;
+      color: #b45309;
+      border: 1px solid #fde68a;
+      padding: 2px 8px;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+    .affirm-badge.removal {
+      background: #fef2f2;
+      color: var(--red);
+      border-color: #fecaca;
+    }
+    .proposer-note {
+      font-size: 10px;
+      font-weight: 700;
+      background: var(--blue);
+      color: #fff;
+      padding: 1px 7px;
+      border-radius: 10px;
+      margin-left: 6px;
+      vertical-align: middle;
     }
 
     /* ── FLASH MESSAGES ── */
@@ -289,6 +316,12 @@
     <button id="tab-bucket" class="tab-btn" onclick="switchTab('bucket')">
       Bucket List
     </button>
+    <button id="tab-proposals" class="tab-btn" onclick="switchTab('proposals')">
+      Proposals
+    </button>
+    <button id="tab-removals" class="tab-btn" onclick="switchTab('removals')">
+      Removals
+    </button>
   </div>
 
   <!-- REVIEWS PANEL -->
@@ -315,7 +348,7 @@
           </div>
           <div class="stars-display" aria-label="{{ review.rating }} out of 5 stars">
             {% for i in range(1, 6) %}
-              <svg class="star {% if i <= review.rating %}star-filled{% else %}star-empty{% endif %}" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <svg class="star {% if i <= review.rating %}star-filled{% else %}star-empty{% endif %}" viewBox="0 0 20 20" stroke-linejoin="round" aria-hidden="true">
                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
               </svg>
             {% endfor %}
@@ -410,15 +443,94 @@
     {% endif %}
   </div>
 
+  <!-- PROPOSALS PANEL -->
+  <div id="panel-proposals" style="display:none;">
+    <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px;">
+      <h2 style="font-weight:700; color:var(--text); font-size:15px;">Proposals Affirmed</h2>
+      <span style="font-size:11px; color:var(--muted);">{{ proposals | length }} total</span>
+    </div>
+
+    {% if proposals %}
+      {% for place in proposals %}
+      <div class="bucket-card">
+        <div style="flex:1; min-width:0;">
+          <a href="/restaurant/{{ place._id }}" class="bucket-name">
+            {{ place.name }}{% if place.is_proposer %}<span class="proposer-note">You proposed</span>{% endif %}
+          </a>
+          <p style="font-size:12px; color:var(--muted); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+            {% if place.cuisine %}{{ place.cuisine }}{% endif %}{% if place.address %} · {{ place.address }}{% endif %}
+          </p>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+          <span class="affirm-badge">{{ place.affirm_count }}/{{ required_affirmations }} affirmed</span>
+          {% if place.price %}
+            <span class="price-badge">{{ '$' * (place.price | int) }}</span>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+
+    {% else %}
+      <div class="empty-state">
+        <svg class="empty-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+        </svg>
+        <p class="empty-text">
+          {% if is_own_profile %}You haven't affirmed any proposed restaurants yet.{% else %}No affirmed proposals yet.{% endif %}
+        </p>
+        {% if is_own_profile %}
+          <a href="/propose" class="empty-link">Propose a restaurant →</a>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- REMOVALS PANEL -->
+  <div id="panel-removals" style="display:none;">
+    <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px;">
+      <h2 style="font-weight:700; color:var(--text); font-size:15px;">Removals Affirmed</h2>
+      <span style="font-size:11px; color:var(--muted);">{{ removals | length }} total</span>
+    </div>
+
+    {% if removals %}
+      {% for place in removals %}
+      <div class="bucket-card">
+        <div style="flex:1; min-width:0;">
+          <a href="/restaurant/{{ place._id }}" class="bucket-name">{{ place.name }}</a>
+          <p style="font-size:12px; color:var(--muted); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+            {% if place.cuisine %}{{ place.cuisine }}{% endif %}{% if place.address %} · {{ place.address }}{% endif %}
+          </p>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+          <span class="affirm-badge removal">{{ place.removal_count }}/{{ required_affirmations }} to remove</span>
+          {% if place.price %}
+            <span class="price-badge">{{ '$' * (place.price | int) }}</span>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+
+    {% else %}
+      <div class="empty-state">
+        <svg class="empty-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+        </svg>
+        <p class="empty-text">
+          {% if is_own_profile %}You haven't affirmed any removals yet.{% else %}No affirmed removals yet.{% endif %}
+        </p>
+      </div>
+    {% endif %}
+  </div>
+
 </div>
 
 <script>
+  const TABS = ['reviews', 'bucket', 'proposals', 'removals'];
   function switchTab(tab) {
-    const isReviews = tab === 'reviews';
-    document.getElementById('panel-reviews').style.display = isReviews ? 'block' : 'none';
-    document.getElementById('panel-bucket').style.display  = isReviews ? 'none'  : 'block';
-    document.getElementById('tab-reviews').classList.toggle('active', isReviews);
-    document.getElementById('tab-bucket').classList.toggle('active', !isReviews);
+    TABS.forEach(t => {
+      document.getElementById('panel-' + t).style.display = (t === tab) ? 'block' : 'none';
+      document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+    });
   }
 
   function deleteReview(id) {
