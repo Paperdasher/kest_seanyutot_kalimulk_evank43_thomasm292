@@ -111,3 +111,7 @@ DEVELOPER PREVIEWS: The Aftermath
   - Responses to reviews(owner or other users)
   - Search for users
   - Good UI but extra unnecessary info on map
+
+seanT -- 2026-06-02 11:44
+  - Tested for adding/removing restaurants
+  - Need to fix proposed restaurant marker appearing and reg marker once approved
