@@ -23,7 +23,9 @@
     * { box-sizing:border-box; margin:0; padding:0; }
     body { font-family:system-ui,-apple-system,sans-serif; background:var(--surface); color:var(--text); min-height:100vh; }
 
-    nav { background:var(--blue); padding:0 16px; height:52px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:1000; }
+    nav { background:var(--blue); padding:0 16px; height:52px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:1100; }
+    /* keep Leaflet's zoom/attribution controls below the sticky navbar */
+    .leaflet-top, .leaflet-bottom { z-index: 600; }
     .nav-logo { font-size:20px; font-weight:700; color:#fff; letter-spacing:-0.3px; text-decoration:none; }
     .nav-links a { font-size:14px; font-weight:500; color:rgba(255,255,255,0.85); text-decoration:none; margin-left:20px; }
     .nav-links a:hover { color:#fff; }
