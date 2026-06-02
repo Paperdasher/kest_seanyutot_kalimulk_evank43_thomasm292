@@ -46,7 +46,7 @@ $ pip install -r requirements.txt
 Now open on [localhost](http://127.0.0.0:5000)
 
 ## Launch Codes:
-In terminal, access project root directory and run the command:
+In terminal, access the project root directory and run the command:
 
 ```
 ~$ cd app
