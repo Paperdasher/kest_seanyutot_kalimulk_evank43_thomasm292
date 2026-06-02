@@ -429,7 +429,7 @@ def fill_restaurants():
 def fill_restaurant(restaurant_id):
     """
     GET  — show the fill form for this restaurant.
-    POST — save food_type, restaurant_type, and schedule, then redirect to the next unfilled one.
+    POST — save food_type and schedule, then redirect to the next unfilled one.
     """
     restaurant = data.get_restaurant(restaurant_id)
     if not restaurant:
@@ -439,8 +439,7 @@ def fill_restaurant(restaurant_id):
     if request.method == 'POST':
         action = request.form.get("action", "save_next")
 
-        food_type      = request.form.get("food_type", "").strip()
-        restaurant_type = request.form.get("restaurant_type", "").strip()
+        food_type = request.form.get("food_type", "").strip()
 
         # Build schedule list: one entry per day in "HH:MM-HH:MM" format, or "" if closed
         schedule = []
