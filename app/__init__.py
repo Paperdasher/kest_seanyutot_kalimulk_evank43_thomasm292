@@ -288,6 +288,7 @@ def propose_restaurant():
     if request.method == "POST":
         name = request.form.get("name", "").strip()
         food_type = request.form.get("food_type", "").strip()
+        address = request.form.get("address", "").strip()
 
         try:
             lat = float(request.form.get("lat", ""))
@@ -321,7 +322,8 @@ def propose_restaurant():
 
         new_id = data.add_proposed_restaurant(
             name, lat, lng, price, food_type or None,
-            schedule if any(schedule) else [], session["username"]
+            schedule if any(schedule) else [], session["username"],
+            address=address
         )
         flash("Proposal submitted! It needs 4 more users to affirm it.", "success")
         return redirect(url_for("restaurant_page", id=new_id))

@@ -79,7 +79,8 @@ def add_restaurant(name, lat, lng, address, price, food_type, schedule, rating, 
         "reviews": [],
         # rating is a dict: {"1": count, "2": count, "3": count, "4": count, "5": count}
         "rating": rating,
-        "link": link
+        "link": link,
+        "proposed": False               # confirmed restaurant (not awaiting affirmations)
     })
     return restaurant_id
 
@@ -91,12 +92,13 @@ def add_restaurant(name, lat, lng, address, price, food_type, schedule, rating, 
 # first affirmation, so an addition needs the proposer + 4 others.
 REQUIRED_AFFIRMATIONS = 5
 
-def add_proposed_restaurant(name, lat, lng, price, food_type, schedule, proposed_by):
+def add_proposed_restaurant(name, lat, lng, price, food_type, schedule, proposed_by, address=""):
     """
-    Insert a user-proposed restaurant. It behaves like a normal restaurant
-    (shows on the map and has its own page) but carries a `proposed` flag and
-    a list of affirming usernames until it gathers enough affirmations.
-    The proposer automatically affirms their own proposal.
+    Insert a user-proposed restaurant. It is added to the database immediately
+    so it behaves like a normal restaurant (shows on the map and has its own
+    page), but carries a `proposed` flag and a list of affirming usernames
+    until it gathers enough affirmations. The proposer automatically affirms
+    their own proposal.
     """
     last = mongo.restaurants.find_one(sort=[("_id", -1)])
     restaurant_id = (last["_id"] + 1) if last else 1
@@ -106,7 +108,7 @@ def add_proposed_restaurant(name, lat, lng, price, food_type, schedule, proposed
         "name": name,
         "lat": lat,
         "lng": lng,
-        "address": "",
+        "address": address,
         "price": price,
         "food_type": food_type,
         "schedule": schedule,
