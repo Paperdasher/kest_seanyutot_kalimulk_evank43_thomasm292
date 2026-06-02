@@ -474,6 +474,33 @@
     .popup-affirm.affirmed { background: var(--green); color: #fff; }
     /* propose mode: crosshair over the map */
     #map.propose-mode { cursor: crosshair; }
+
+    /* ── PROPOSE BUTTON (floats over map) ── */
+    #propose-btn {
+      position: absolute;
+      top: 68px;
+      right: 16px;
+      z-index: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 16px;
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,.18);
+      transition: background .15s;
+    }
+    #propose-btn:hover { background: var(--blue-dk); }
+    #propose-btn.active {
+      background: var(--gold);
+      color: #3a2a00;
+    }
   </style>
 </head>
 <body>
@@ -482,7 +509,6 @@
   <span class="nav-logo">tummi</span>
   <div class="nav-links">
     <a href="/">Home</a>
-    <a href="#" id="propose-link" onclick="toggleProposeMode(); return false;">+ Propose</a>
     <a href="/profile">Profile</a>
     <a href="/logout" class="logout">Logout</a>
   </div>
@@ -557,6 +583,12 @@
 
   <!-- Map -->
   <div id="map"></div>
+
+  <!-- Propose-restaurant button (floats over the map) -->
+  <button id="propose-btn" onclick="toggleProposeMode()" title="Propose a new restaurant">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    <span id="propose-btn-label">Propose</span>
+  </button>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -867,6 +899,9 @@ function toggleProposeMode() {
   proposeMode = !proposeMode;
   document.getElementById('propose-banner').style.display = proposeMode ? 'flex' : 'none';
   document.getElementById('map').classList.toggle('propose-mode', proposeMode);
+  const btn = document.getElementById('propose-btn');
+  btn.classList.toggle('active', proposeMode);
+  document.getElementById('propose-btn-label').textContent = proposeMode ? 'Cancel' : 'Propose';
   setTimeout(() => map.invalidateSize(), 50);
 }
 
