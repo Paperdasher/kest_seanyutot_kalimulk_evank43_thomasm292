@@ -220,6 +220,15 @@ def unaffirm_removal(restaurant_id, username):
         )
     return {"count": count}
 
+def get_affirmed_proposals(username):
+    """Return pending proposed restaurants this user has affirmed (including
+    ones they originally proposed)."""
+    return list(mongo.restaurants.find({"proposed": True, "affirmations": username}))
+
+def get_affirmed_removals(username):
+    """Return restaurants whose removal this user has affirmed."""
+    return list(mongo.restaurants.find({"removal_affirmations": username}))
+
 def update_restaurant_meta(restaurant_id, food_type=None, schedule=None):
     """
     Update food_type, restaurant_type, and/or schedule for a restaurant.

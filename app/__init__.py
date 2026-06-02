@@ -188,6 +188,32 @@ def profile(username=None):
         except Exception:
             continue
 
+    # Proposals this user has affirmed (incl. ones they proposed)
+    proposals = []
+    for r in data.get_affirmed_proposals(page_user["_id"]):
+        proposals.append({
+            "_id": r["_id"],
+            "name": r["name"],
+            "cuisine": r.get("food_type", ""),
+            "address": r.get("address", ""),
+            "price": r.get("price", ""),
+            "affirm_count": len(r.get("affirmations", [])),
+            "is_proposer": r.get("proposed_by") == page_user["_id"],
+        })
+    proposals.sort(key=lambda p: p["is_proposer"], reverse=True)
+
+    # Removals this user has affirmed
+    removals = []
+    for r in data.get_affirmed_removals(page_user["_id"]):
+        removals.append({
+            "_id": r["_id"],
+            "name": r["name"],
+            "cuisine": r.get("food_type", ""),
+            "address": r.get("address", ""),
+            "price": r.get("price", ""),
+            "removal_count": len(r.get("removal_affirmations", [])),
+        })
+
     return render_template(
         "profile.html",
         page_user=page_user,
@@ -195,6 +221,9 @@ def profile(username=None):
         bucket_list=bucket_list,
         is_own_profile=is_own_profile,
         current_user=current_user,
+        proposals=proposals,
+        removals=removals,
+        required_affirmations=data.REQUIRED_AFFIRMATIONS,
     )
 
 @app.route("/bucket-list/add/<restaurant_id>", methods=["POST"])
