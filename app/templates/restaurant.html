@@ -461,6 +461,82 @@
       display: block;
     }
 
+    /* ── PROPOSAL BANNERS ── */
+    .proposal-banner {
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin-bottom: 16px;
+    }
+    .proposal-banner-add {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+    }
+    .proposal-banner-remove {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+    }
+    .proposal-head {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .proposal-icon { font-size: 20px; line-height: 1; }
+    .proposal-title { font-size: 14px; font-weight: 800; color: var(--text); margin-bottom: 2px; }
+    .proposal-sub { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .proposal-progress { margin-bottom: 12px; }
+    .proposal-count { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 5px; }
+    .proposal-bar {
+      height: 8px;
+      background: rgba(0,0,0,.08);
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    .proposal-bar-fill {
+      height: 100%;
+      background: var(--gold);
+      border-radius: 5px;
+      transition: width .3s ease;
+    }
+    .proposal-bar-fill.remove { background: var(--red); }
+
+    .btn-affirm, .btn-remove {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .15s;
+      user-select: none;
+    }
+    .btn-affirm {
+      border: 2px solid var(--gold);
+      background: var(--gold);
+      color: #3a2a00;
+    }
+    .btn-affirm.affirmed {
+      background: #fff;
+      color: var(--green);
+      border-color: var(--green);
+    }
+    .btn-remove {
+      border: 2px solid #fecaca;
+      background: #fff;
+      color: var(--red);
+    }
+    .btn-remove.affirmed {
+      background: var(--red);
+      color: #fff;
+      border-color: var(--red);
+    }
+    .btn-affirm .label-remove, .btn-remove .label-remove { display: none; }
+    .btn-affirm .label-default, .btn-remove .label-default { display: inline; }
+    .btn-affirm.affirmed .label-default, .btn-remove.affirmed .label-default { display: none; }
+    .btn-affirm.affirmed .label-remove, .btn-remove.affirmed .label-remove { display: inline; }
+
     /* ── TWO-COL LAYOUT ── */
     .two-col {
       display: grid;
@@ -505,6 +581,32 @@
       {% endfor %}
     {% endif %}
   {% endwith %}
+
+  {% if is_proposed %}
+  <!-- ── PROPOSED RESTAURANT BANNER ── -->
+  <div class="proposal-banner proposal-banner-add">
+    <div class="proposal-head">
+      <span class="proposal-icon">📍</span>
+      <div>
+        <div class="proposal-title">Proposed restaurant</div>
+        <div class="proposal-sub">This was suggested by a user and isn't confirmed yet. It needs
+          <strong>{{ required_affirmations }}</strong> affirmations to be added for everyone.</div>
+      </div>
+    </div>
+    <div class="proposal-progress">
+      <div class="proposal-count" id="add-count">{{ affirm_count }}/{{ required_affirmations }} affirmed</div>
+      <div class="proposal-bar"><div class="proposal-bar-fill" id="add-bar"
+           style="width: {{ (affirm_count / required_affirmations * 100) | int }}%"></div></div>
+    </div>
+    <button id="affirm-add-btn"
+            class="btn-affirm {% if user_affirmed %}affirmed{% endif %}"
+            data-affirmed="{{ 'true' if user_affirmed else 'false' }}"
+            onclick="toggleAffirmAdd({{ restaurant._id }})">
+      <span class="label-default">Affirm this restaurant</span>
+      <span class="label-remove">✓ Affirmed — remove my affirmation</span>
+    </button>
+  </div>
+  {% endif %}
 
   <!-- ── RESTAURANT HEADER CARD ── -->
   <div class="card">
@@ -732,6 +834,43 @@
     {% endif %}
   </div>
 
+  {% if not is_proposed %}
+  <!-- ── REMOVAL PROPOSAL ── -->
+  <div class="card">
+    <div class="card-title">Closed down?</div>
+    {% if removal_count > 0 %}
+      <div class="proposal-banner proposal-banner-remove" style="margin-bottom:14px;">
+        <div class="proposal-head">
+          <span class="proposal-icon">🗑️</span>
+          <div>
+            <div class="proposal-title">Removal proposed</div>
+            <div class="proposal-sub">Users have flagged this restaurant as closed. It will be removed
+              once <strong>{{ required_affirmations }}</strong> users affirm.</div>
+          </div>
+        </div>
+        <div class="proposal-progress">
+          <div class="proposal-count" id="remove-count">{{ removal_count }}/{{ required_affirmations }} affirmed</div>
+          <div class="proposal-bar"><div class="proposal-bar-fill remove" id="remove-bar"
+               style="width: {{ (removal_count / required_affirmations * 100) | int }}%"></div></div>
+        </div>
+      </div>
+    {% else %}
+      <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">
+        If this restaurant has closed, you can propose removing it. It takes
+        {{ required_affirmations }} users affirming the removal before it's deleted.
+      </p>
+    {% endif %}
+    <button id="affirm-remove-btn"
+            class="btn-remove {% if user_affirmed_removal %}affirmed{% endif %}"
+            data-affirmed="{{ 'true' if user_affirmed_removal else 'false' }}"
+            data-has-proposal="{{ 'true' if removal_count > 0 else 'false' }}"
+            onclick="toggleAffirmRemoval({{ restaurant._id }})">
+      <span class="label-default">{% if removal_count > 0 %}Affirm removal{% else %}Propose removal{% endif %}</span>
+      <span class="label-remove">✓ You affirmed removal — undo</span>
+    </button>
+  </div>
+  {% endif %}
+
 </div><!-- /page -->
 
 <script>
@@ -809,6 +948,50 @@ async function deleteReviewFromList(reviewId) {
     const card = document.getElementById(`review-card-${reviewId}`);
     if (card) card.remove();
   }
+}
+
+const REQUIRED_AFFIRMATIONS = {{ required_affirmations }};
+
+// ── Affirm / unaffirm a proposed (new) restaurant ──
+async function toggleAffirmAdd(id) {
+  const btn = document.getElementById('affirm-add-btn');
+  const affirmed = btn.dataset.affirmed === 'true';
+  const url = affirmed ? `/restaurant/${id}/unaffirm` : `/restaurant/${id}/affirm`;
+  try {
+    const res = await fetch(url, { method: 'POST' });
+    const data = await res.json();
+    if (data.error) { alert(data.error); return; }
+    // Promotion (now a normal restaurant) or withdrawal (deleted) → reload/redirect
+    if (data.promoted) { location.reload(); return; }
+    if (data.withdrawn) { window.location.href = '/'; return; }
+    btn.dataset.affirmed = (!affirmed).toString();
+    btn.classList.toggle('affirmed', !affirmed);
+    updateBar('add-count', 'add-bar', data.count);
+  } catch (e) { console.error('Affirm error:', e); }
+}
+
+// ── Propose / affirm / unaffirm removal of an existing restaurant ──
+async function toggleAffirmRemoval(id) {
+  const btn = document.getElementById('affirm-remove-btn');
+  const affirmed = btn.dataset.affirmed === 'true';
+  if (!affirmed && !confirm('Affirm that this restaurant has closed and should be removed?')) return;
+  const url = affirmed ? `/restaurant/${id}/unaffirm-removal` : `/restaurant/${id}/affirm-removal`;
+  try {
+    const res = await fetch(url, { method: 'POST' });
+    const data = await res.json();
+    if (data.error) { alert(data.error); return; }
+    // Restaurant deleted once enough users affirmed
+    if (data.removed) { alert('This restaurant has been removed.'); window.location.href = '/'; return; }
+    // The proposal/count UI is built server-side, so reload to reflect the new state
+    location.reload();
+  } catch (e) { console.error('Removal error:', e); }
+}
+
+function updateBar(countId, barId, count) {
+  const c = document.getElementById(countId);
+  const b = document.getElementById(barId);
+  if (c) c.textContent = `${count}/${REQUIRED_AFFIRMATIONS} affirmed`;
+  if (b) b.style.width = `${Math.round(count / REQUIRED_AFFIRMATIONS * 100)}%`;
 }
 </script>
 

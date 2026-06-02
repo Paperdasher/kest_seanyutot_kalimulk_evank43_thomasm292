@@ -62,6 +62,10 @@ def restaurant_page(id):
     # Check if the logged-in user already left a review for this restaurant
     user_review = data.get_user_review_for_restaurant(id, session['username'])
 
+    # Proposal / removal state
+    affirmations = restaurant.get("affirmations", [])
+    removal_affirmations = restaurant.get("removal_affirmations", [])
+
     return render_template(
         "restaurant.html",
         restaurant=restaurant,
@@ -72,6 +76,12 @@ def restaurant_page(id):
         user_review=user_review,
         username=session['username'],
         now=datetime.now(),
+        is_proposed=bool(restaurant.get("proposed")),
+        affirm_count=len(affirmations),
+        user_affirmed=session['username'] in affirmations,
+        removal_count=len(removal_affirmations),
+        user_affirmed_removal=session['username'] in removal_affirmations,
+        required_affirmations=data.REQUIRED_AFFIRMATIONS,
     )
 
 @app.route("/logout")
@@ -257,11 +267,113 @@ def edit_review(review_id):
     data.edit_review(review_id, session["username"], new_rating, new_text)
     return redirect(url_for("restaurant_page", id=restaurant_id))
 
+DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+
+# -----------------------------------------------------------------------
+# Community proposals: add / remove restaurants (5-user affirmation)
+# -----------------------------------------------------------------------
+
+@app.route("/propose", methods=["GET", "POST"])
+def propose_restaurant():
+    """
+    GET  — show the propose form. A `lat`/`lng` query (dropped from the home
+           map) pre-fills the location; the form lets the user adjust the pin
+           and enter name, price, food_type, and schedule.
+    POST — create the proposed restaurant (proposer auto-affirms) and redirect
+           to its restaurant page.
+    """
+    if "username" not in session:
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        food_type = request.form.get("food_type", "").strip()
+
+        try:
+            lat = float(request.form.get("lat", ""))
+            lng = float(request.form.get("lng", ""))
+        except (TypeError, ValueError):
+            lat = lng = None
+
+        try:
+            price = int(request.form.get("price", 0))
+        except (TypeError, ValueError):
+            price = 0
+
+        if not name or lat is None or lng is None or price < 1 or price > 4:
+            return render_template(
+                "propose.html",
+                days=DAYS,
+                lat=request.form.get("lat", ""),
+                lng=request.form.get("lng", ""),
+                error="Please drop a pin and fill in the name and price.",
+            )
+
+        # Build schedule list: one "HH:MM-HH:MM" entry per day, or "" if closed/unknown
+        schedule = []
+        for day in DAYS:
+            if request.form.get(f"closed_{day}"):
+                schedule.append("")
+            else:
+                open_time = request.form.get(f"open_{day}", "").strip()
+                close_time = request.form.get(f"close_{day}", "").strip()
+                schedule.append(f"{open_time}-{close_time}" if open_time and close_time else "")
+
+        new_id = data.add_proposed_restaurant(
+            name, lat, lng, price, food_type or None,
+            schedule if any(schedule) else [], session["username"]
+        )
+        flash("Proposal submitted! It needs 4 more users to affirm it.", "success")
+        return redirect(url_for("restaurant_page", id=new_id))
+
+    # GET
+    return render_template(
+        "propose.html",
+        days=DAYS,
+        lat=request.args.get("lat", ""),
+        lng=request.args.get("lng", ""),
+        error=None,
+    )
+
+@app.route("/restaurant/<int:id>/affirm", methods=["POST"])
+def affirm_addition(id):
+    if "username" not in session:
+        return jsonify({"error": "Not logged in"}), 401
+    result = data.affirm_addition(id, session["username"])
+    if result is None:
+        return jsonify({"error": "Not a pending proposal"}), 400
+    return jsonify(result)
+
+@app.route("/restaurant/<int:id>/unaffirm", methods=["POST"])
+def unaffirm_addition(id):
+    if "username" not in session:
+        return jsonify({"error": "Not logged in"}), 401
+    result = data.unaffirm_addition(id, session["username"])
+    if result is None:
+        return jsonify({"error": "Not a pending proposal"}), 400
+    return jsonify(result)
+
+@app.route("/restaurant/<int:id>/affirm-removal", methods=["POST"])
+def affirm_removal(id):
+    if "username" not in session:
+        return jsonify({"error": "Not logged in"}), 401
+    result = data.affirm_removal(id, session["username"])
+    if result is None:
+        return jsonify({"error": "Cannot propose removal for this restaurant"}), 400
+    return jsonify(result)
+
+@app.route("/restaurant/<int:id>/unaffirm-removal", methods=["POST"])
+def unaffirm_removal(id):
+    if "username" not in session:
+        return jsonify({"error": "Not logged in"}), 401
+    result = data.unaffirm_removal(id, session["username"])
+    if result is None:
+        return jsonify({"error": "Restaurant not found"}), 404
+    return jsonify(result)
+
 # -----------------------------------------------------------------------
 # Admin: Restaurant Fill Tool
 # -----------------------------------------------------------------------
-
-DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
 @app.route("/admin/fill-restaurants")
 def fill_restaurants():
