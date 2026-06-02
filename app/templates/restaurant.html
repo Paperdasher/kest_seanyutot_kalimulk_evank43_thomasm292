@@ -609,7 +609,7 @@
         <span class="badge-cuisine">{{ restaurant.food_type }}</span>
       {% endif %}
       {% if restaurant.price %}
-        <span class="badge-price">{{ '$' * restaurant.price }}</span>
+        <span class="badge-price">{{ '$' * (restaurant.price | int) }}</span>
       {% endif %}
     </div>
 

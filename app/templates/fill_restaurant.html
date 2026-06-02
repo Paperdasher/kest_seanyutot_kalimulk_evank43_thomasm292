@@ -159,7 +159,7 @@
       <div class="restaurant-meta">
         ID #{{ restaurant._id }}
         {% if restaurant.address %} · {{ restaurant.address }}{% endif %}
-        {% if restaurant.price %} · {{ '$' * restaurant.price }}{% endif %}
+        {% if restaurant.price %} · {{ '$' * (restaurant.price | int) }}{% endif %}
       </div>
 
       <!-- Google Maps link -->
