@@ -93,17 +93,51 @@ KAGGLE DATASETS
   - Added address field to documents in restaurant collection
   - Found datasets of NYC restaurants on kaggle
 
+evanK -- 2026-5-19 11:40
+KAGGLE DATASETS
+  - Wrote script to pull data from kaggle into Mongo
+  - Wrote catch for kaggle restaurants with missing fields
+  - Changed rating structure to specify number of each amount of stars
+
+evanK -- 2026-5-20 11:20
+SETUP FIX
+  - Fixed script to pull from kaggle
+  - Changed how helper functions are accessed to use correct names
+
+evanK -- 2026-5-22 11:41
+FLASK
+  - Fixed checking for not logged-in on every route
+  - Updated navbar
+  - Fixed checking for if user is looking at their own profile
+
 seanT -- 2026-05-22 2:30
 PROFILE PAGE 
   - Added bucket list add/remove logic and review display for app
   - Profile HTML template with reviews and bucket list
   - Profile on navbar
 
+evanK -- 2026-5-26 20:31
+HOME PAGE
+  - Bounded map to NYC/NJ area
+  - Changed latitude and longitude to be their own fields
+  - Added search bar
+
 seanT -- 2026-05-28 1:32
 RESTAURANT PAGE
   - Added restaurant template
   - Fixed navbar nonexistent in pages other than home
   - Debugging flash message not appearing issue
+
+evanK -- 2026-5-28 11:31
+HOME PAGE
+  - Turned on in-view by default
+  - Made map not re-search on every movement of the map
+
+evanK -- 2026-5-29 7:31
+RESTAURANT PAGE
+  - Made basic restaurant page to display more restaurant information
+  - Added reviews section with only text reviews
+  - Changed reviews to allow users to edit their review
 
 DEVELOPER PREVIEWS: The Aftermath
   - Add/remove restaurant capability(plan to implement next)
@@ -112,6 +146,24 @@ DEVELOPER PREVIEWS: The Aftermath
   - Search for users
   - Good UI but extra unnecessary info on map
 
+evanK -- 2026-5-29 20:31
+RESTAURANT PAGE
+  - Cleaned up restaurant page
+  - Edited theme to be more consistent
+
 seanT -- 2026-06-02 11:44
   - Tested for adding/removing restaurants
   - Need to fix proposed restaurant marker appearing and reg marker once approved
+
+evanK -- 2026-6-2 20:42
+RESTAURANT PROPOSALS/REMOVALS
+  - Added button on map to propose a new restaurant
+  - Wrote basic proposal page with form for necessary fields
+  - Added button on restaurant page to remove restaurant
+  - Changed proposals/removals to need 5 users
+
+evanK -- 2026-6-3 21:27
+FILLING MISSING FIELDS FOR KAGGLE RESTAURANTS
+  - Wrote page for updating restaurants from kaggle to add schedule and food type
+  - Made home page for filling restaurants to see amount left
+  - Cleaned up style and theme
