@@ -408,10 +408,21 @@ def delete_review(review_id, username):
 def get_unfilled_restaurants(fields=("food_type", "schedule")):
     """
     Return restaurants that are missing data for any of the given fields.
-    A field is considered 'missing' if it is falsy (empty string, empty list, None).
-    Used by the admin fill tool to find restaurants still needing manual entry.
+    - food_type: missing if None or empty string
+    - schedule: missing if None, [], or not yet saved (not if it contains "" for closed days)
     """
-    query = {"$or": [{field: {"$in": [None, "", []]}} for field in fields]}
+    conditions = []
+    for field in fields:
+        if field == "schedule":
+            # Only treat schedule as missing if the field itself is absent/null/empty list.
+            # A schedule with "" entries is valid — those are intentional closed days.
+            conditions.append({"schedule": {"$in": [None, []]}})
+            conditions.append({"schedule": {"$exists": False}})
+        else:
+            conditions.append({field: {"$in": [None, ""]}})
+            conditions.append({field: {"$exists": False}})
+
+    query = {"$or": conditions}
     return list(mongo.restaurants.find(query))
 
 def get_fill_progress():
