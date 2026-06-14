@@ -4,6 +4,15 @@ from bson import ObjectId
 client = MongoClient("mongodb://localhost:27017")
 mongo = client["tummi"]
 
+# Canonical food types — must stay in sync with the home page cuisine filter.
+# Anything not in this list (the "Restaurant" placeholder, blanks, legacy values)
+# is treated as uncategorized by the admin fill tool. "Other" is the catch-all.
+FOOD_TYPES = [
+    "American", "Chinese", "Japanese", "Korean", "Mexican", "Italian",
+    "Indian", "Thai", "Mediterranean", "Pizza", "Deli", "Sandwiches",
+    "Burgers", "Seafood", "Vegan", "Desserts", "Cafe", "Other",
+]
+
 # -----------------------------------------------------------------------
 # User Functions
 # -----------------------------------------------------------------------
@@ -229,9 +238,9 @@ def get_affirmed_removals(username):
     """Return restaurants whose removal this user has affirmed."""
     return list(mongo.restaurants.find({"removal_affirmations": username}))
 
-def update_restaurant_meta(restaurant_id, food_type=None, schedule=None):
+def update_restaurant_meta(restaurant_id, food_type=None, schedule=None, schedule_unavailable=None):
     """
-    Update food_type and/or schedule for a restaurant.
+    Update food_type, schedule, and/or the schedule_unavailable flag for a restaurant.
     Used by the admin fill tool to patch restaurants imported from Kaggle.
     Only fields explicitly passed (not None) are updated.
     """
@@ -240,6 +249,8 @@ def update_restaurant_meta(restaurant_id, food_type=None, schedule=None):
         updates["food_type"] = food_type
     if schedule is not None:
         updates["schedule"] = schedule
+    if schedule_unavailable is not None:
+        updates["schedule_unavailable"] = schedule_unavailable
     if updates:
         mongo.restaurants.update_one({"_id": restaurant_id}, {"$set": updates})
 
@@ -405,24 +416,25 @@ def delete_review(review_id, username):
 # Admin / Fill Tool Helpers
 # -----------------------------------------------------------------------
 
-def get_unfilled_restaurants(fields=("food_type", "schedule")):
+def get_unfilled_restaurants():
     """
-    Return restaurants that are missing data for any of the given fields.
-    - food_type: missing if None or empty string
-    - schedule: missing if None, [], or not yet saved (not if it contains "" for closed days)
-    """
-    conditions = []
-    for field in fields:
-        if field == "schedule":
-            # Only treat schedule as missing if the field itself is absent/null/empty list.
-            # A schedule with "" entries is valid — those are intentional closed days.
-            conditions.append({"schedule": {"$in": [None, []]}})
-            conditions.append({"schedule": {"$exists": False}})
-        else:
-            conditions.append({field: {"$in": [None, ""]}})
-            conditions.append({field: {"$exists": False}})
+    Return restaurants that still need admin attention in the fill tool.
 
-    query = {"$or": conditions}
+    A restaurant needs filling if EITHER:
+      - its food_type is not one of the recognized FOOD_TYPES — this covers the
+        generic "Restaurant" placeholder, blanks/None, and any legacy off-list
+        value (all of which mean it hasn't been properly categorized), OR
+      - it has no real schedule (None / [] / absent) and hasn't been explicitly
+        marked as schedule-unavailable. A schedule containing "" entries is valid —
+        those are intentional closed days.
+    """
+    query = {"$or": [
+        {"food_type": {"$nin": FOOD_TYPES}},
+        {"$and": [
+            {"schedule": {"$in": [None, []]}},
+            {"schedule_unavailable": {"$ne": True}},
+        ]},
+    ]}
     return list(mongo.restaurants.find(query))
 
 def get_fill_progress():

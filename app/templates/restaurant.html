@@ -697,6 +697,11 @@
       {% endfor %}
     </div>
   </div>
+  {% elif restaurant.schedule_unavailable %}
+  <div class="card">
+    <div class="card-title">Hours</div>
+    <p style="font-size:13px; color:var(--muted);">Hours not available.</p>
+  </div>
   {% endif %}
 
   <!-- ── REVIEW FORM ── -->

@@ -440,22 +440,35 @@ def fill_restaurant(restaurant_id):
         action = request.form.get("action", "save_next")
 
         food_type = request.form.get("food_type", "").strip()
+        # Normalize: any value not on the recognized list (including the blank
+        # selection and the "Restaurant" placeholder) becomes "Other".
+        if food_type not in data.FOOD_TYPES:
+            food_type = "Other"
 
-        # Build schedule list: one entry per day in "HH:MM-HH:MM" format, or "" if closed
-        schedule = []
-        for day in DAYS:
-            closed = request.form.get(f"closed_{day}")
-            if closed:
-                schedule.append("")
-            else:
-                open_time  = request.form.get(f"open_{day}", "").strip()
-                close_time = request.form.get(f"close_{day}", "").strip()
-                schedule.append(f"{open_time}-{close_time}" if open_time and close_time else "")
+        # Admin can flag that the schedule is genuinely unknown/unavailable, which
+        # marks the restaurant as handled so it stops showing up in the fill queue.
+        schedule_unavailable = bool(request.form.get("schedule_unavailable"))
+
+        if schedule_unavailable:
+            schedule = None
+        else:
+            # Build schedule list: one entry per day in "HH:MM-HH:MM" format, or "" if closed
+            schedule = []
+            for day in DAYS:
+                closed = request.form.get(f"closed_{day}")
+                if closed:
+                    schedule.append("")
+                else:
+                    open_time  = request.form.get(f"open_{day}", "").strip()
+                    close_time = request.form.get(f"close_{day}", "").strip()
+                    schedule.append(f"{open_time}-{close_time}" if open_time and close_time else "")
+            schedule = schedule if any(schedule) else None
 
         data.update_restaurant_meta(
             restaurant_id,
-            food_type=food_type or None,
-            schedule=schedule if any(schedule) else None
+            food_type=food_type,
+            schedule=schedule,
+            schedule_unavailable=schedule_unavailable
         )
 
         if action == "save_quit":
@@ -491,6 +504,7 @@ def fill_restaurant(restaurant_id):
         restaurant=restaurant,
         progress=progress,
         days=DAYS,
+        food_types=data.FOOD_TYPES,
         prev_id=prev_id,
         next_id=next_id,
         pos=pos,
