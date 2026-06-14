@@ -691,7 +691,7 @@
         {% set is_today = (today_idx is not none and today_idx == i) %}
         {% set is_closed = (hours == '' or hours is none) %}
         <div class="schedule-day {% if is_today %}today{% endif %} {% if is_closed %}closed{% endif %}">
-          <span class="day-name">{{ days[i] }}{% if is_today %} ·today{% endif %}</span>
+          <span class="day-name">{{ days[i] }}</span>
           <span class="day-hours">{% if is_closed %}Closed{% else %}{{ hours }}{% endif %}</span>
         </div>
       {% endfor %}

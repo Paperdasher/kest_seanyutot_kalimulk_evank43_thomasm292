@@ -455,7 +455,7 @@
       <div class="bucket-card">
         <div style="flex:1; min-width:0;">
           <a href="/restaurant/{{ place._id }}" class="bucket-name">
-            {{ place.name }}{% if place.is_proposer %}<span class="proposer-note">You proposed</span>{% endif %}
+            {{ place.name }}{% if is_own_profile and place.is_proposer %}<span class="proposer-note">You proposed</span>{% endif %}
           </a>
           <p style="font-size:12px; color:var(--muted); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
             {% if place.cuisine %}{{ place.cuisine }}{% endif %}{% if place.address %} · {{ place.address }}{% endif %}
